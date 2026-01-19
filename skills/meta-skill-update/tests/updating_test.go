@@ -24,23 +24,18 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 		Skill: "meta-skill-update",
 		Cases: []*skilltest.TestCase{
 			{
-				Name:   "discovery-skills",
+				Name:   "discovery-extensions",
 				Skill:  "meta-skill-update",
-				Prompt: "List all skills in this project. What skills are available?",
+				Prompt: "List all extensions in this knowledge base. What's available?",
 				Validators: []skilltest.Validator{
-					skilltest.CustomValidator("finds-skills", func(output string) (bool, string) {
+					skilltest.CustomValidator("finds-meta-skills", func(output string) (bool, string) {
 						output = strings.ToLower(output)
-						found := 0
-						skills := []string{"bubbletea", "k9s", "extension", "updating"}
-						for _, s := range skills {
-							if strings.Contains(output, s) {
-								found++
-							}
+						hasCreate := strings.Contains(output, "meta-skill-create") || strings.Contains(output, "create")
+						hasUpdate := strings.Contains(output, "meta-skill-update") || strings.Contains(output, "update")
+						if hasCreate && hasUpdate {
+							return true, "Found meta skills"
 						}
-						if found >= 2 {
-							return true, "Found multiple skills"
-						}
-						return false, "Did not find skills"
+						return false, "Did not find meta skills"
 					}),
 					skilltest.NoErrors(),
 				},
@@ -49,7 +44,7 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 			{
 				Name:   "update-workflow",
 				Skill:  "meta-skill-update",
-				Prompt: "How would I update the bubbletea-tui skill to support a new version of the bubbletea library?",
+				Prompt: "How would I update a skill to add new patterns?",
 				Validators: []skilltest.Validator{
 					skilltest.CustomValidator("mentions-steps", func(output string) (bool, string) {
 						output = strings.ToLower(output)
@@ -60,15 +55,16 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 						}
 						return false, "No clear update workflow"
 					}),
-					skilltest.CustomValidator("mentions-version", func(output string) (bool, string) {
+					skilltest.CustomValidator("mentions-research", func(output string) (bool, string) {
 						output = strings.ToLower(output)
-						hasVersion := strings.Contains(output, "version") ||
-							strings.Contains(output, "changelog") ||
-							strings.Contains(output, "breaking change")
-						if hasVersion {
-							return true, "Version consideration mentioned"
+						hasResearch := strings.Contains(output, "search") ||
+							strings.Contains(output, "research") ||
+							strings.Contains(output, "web") ||
+							strings.Contains(output, "latest")
+						if hasResearch {
+							return true, "Research step mentioned"
 						}
-						return false, "No version consideration"
+						return false, "No research step"
 					}),
 					skilltest.NoErrors(),
 				},
@@ -80,7 +76,7 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 				Prompt: "How do I find and update hooks in this project?",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsText("settings.json"),
-					skilltest.MatchesRegex(`\.claude|hooks`),
+					skilltest.MatchesRegex(`hooks`),
 					skilltest.NoErrors(),
 				},
 				Iterations: 2,

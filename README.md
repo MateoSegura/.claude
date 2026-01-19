@@ -1,126 +1,244 @@
 # .claude
 
-Scalable knowledge base for AI factory agents - a shared Claude Code configuration.
+Scalable knowledge base for AI factory agents. Self-maintaining via CI-driven Claude updates.
 
 ## Quick Start
 
-Add as a git submodule to any project:
-
 ```bash
+# Add as submodule
 git submodule add https://github.com/MateoSegura/.claude.git .claude
 ```
-
-**New here?** Start with [GUIDE.md](GUIDE.md) for loading instructions and composition examples.
 
 ## Structure
 
 ```
 .claude/
-├── GUIDE.md              # Start here - loading instructions for LLMs
-├── NAMING.md             # Naming convention reference
-├── README.md             # This file
-├── skills/               # Multi-step workflows with rules, scaffolds, and tests
-│   ├── language-*/       # Programming language foundations
-│   ├── framework-*/      # Framework-specific patterns
-│   ├── platform-*/       # Platform/infrastructure knowledge
-│   ├── tool-*/           # Tool-specific workflows
-│   ├── practice-*/       # Cross-cutting practices
-│   ├── domain-*/         # Business domain knowledge
-│   ├── role-*/           # Role behavioral patterns
-│   └── meta-*/           # Extension management
-├── rules/                # Simple always-on guidelines (supports nesting)
-├── agents/               # Pre-composed agent configurations
-├── commands/             # User-invocable slash commands
-├── hooks/                # Shell commands triggered by tool events
-├── mcp-servers/          # External API/service integrations
-├── skilltest/            # Shared Go testing framework
-├── settings.json         # Global Claude Code settings
-└── go.mod                # Go module for tests
+├── skills/               # Complex workflows (meta-* for self-management)
+├── commands/             # Slash commands (/new-skill, /new-rule, etc.)
+├── rules/                # Always-on guidelines
+├── agents/               # Specialized subagents
+├── hooks/                # Tool event triggers
+├── mcp-servers/          # External service integrations
+├── skilltest/            # Go testing framework
+├── settings.json         # Global settings
+└── go.mod                # Go module
 ```
 
-## Two-Layer Taxonomy
+---
 
-Extensions use a Foundation + Role architecture. See [NAMING.md](NAMING.md) for details.
+## Extension Types
 
-### Foundation Layer (What to Know)
+| Type | Location | Discovery | When to Use |
+|------|----------|-----------|-------------|
+| **Skill** | `skills/{name}/SKILL.md` | Flat | Complex multi-step workflows |
+| **Command** | `commands/{name}.md` | Flat | User-invokable actions |
+| **Rule** | `rules/**/*.md` | Recursive | Always-follow guidelines |
+| **Agent** | `agents/{name}.md` | Flat | Delegated specialized tasks |
+| **Hook** | `settings.json` | Config | Automated tool triggers |
+| **MCP** | `.mcp.json` | Config | External API access |
+
+---
+
+## Naming Convention
+
+Names are **LLM-parseable** - agents self-select skills based on context.
+
+### Format
+
+```
+{layer}-{category}-{specific}
+```
+
+**Rules:**
+- Lowercase with hyphens
+- No abbreviations (`typescript` not `ts`)
+- Descriptive over brief
+
+### Layers
+
+#### Foundation (What to Know)
 
 | Prefix | Purpose | Examples |
 |--------|---------|----------|
-| `language-` | Programming language standards | `language-go-cloud`, `language-typescript-node` |
-| `framework-` | Framework-specific patterns | `framework-react`, `framework-bubbletea` |
-| `platform-` | Platform/infrastructure | `platform-kubernetes`, `platform-zephyr` |
-| `tool-` | Tool-specific workflows | `tool-git-workflow`, `tool-docker` |
+| `language-` | Programming standards | `language-go-cloud`, `language-typescript-node` |
+| `framework-` | Framework patterns | `framework-react`, `framework-nextjs` |
+| `platform-` | Infrastructure | `platform-kubernetes`, `platform-aws` |
+| `tool-` | Tool workflows | `tool-git`, `tool-docker` |
 | `practice-` | Cross-cutting concerns | `practice-security-auth`, `practice-testing-tdd` |
-| `domain-` | Business domain knowledge | `domain-fintech`, `domain-healthcare` |
+| `domain-` | Business domains | `domain-fintech`, `domain-healthcare` |
 
-### Role Layer (How to Behave)
+#### Role (How to Behave)
 
-| Prefix | Role | Examples |
-|--------|------|----------|
-| `role-manager-` | Task decomposition, orchestration | `role-manager-planning` |
-| `role-architect-` | System design, decisions | `role-architect-api` |
-| `role-developer-` | Code implementation | `role-developer-backend` |
-| `role-reviewer-` | Code review, audits | `role-reviewer-security` |
-| `role-tester-` | Testing strategies | `role-tester-e2e` |
-| `role-devops-` | CI/CD, deployment | `role-devops-pipeline` |
-| `role-sre-` | Operations, incidents | `role-sre-debugging` |
-| `role-writer-` | Documentation | `role-writer-technical` |
-| `role-pm-` | Requirements, prioritization | `role-pm-requirements` |
-| `role-designer-` | UI/UX design | `role-designer-ui` |
+| Prefix | Role |
+|--------|------|
+| `role-manager-` | Task decomposition, orchestration |
+| `role-architect-` | System design, decisions |
+| `role-developer-` | Code implementation |
+| `role-reviewer-` | Code review, audits |
+| `role-tester-` | Testing strategies |
+| `role-devops-` | CI/CD, deployment |
+| `role-sre-` | Operations, debugging |
+| `role-writer-` | Documentation |
+| `role-pm-` | Requirements, prioritization |
+| `role-designer-` | UI/UX design |
 
-### Meta Layer
+#### Meta (Self-Management)
 
-| Prefix | Purpose | Examples |
-|--------|---------|----------|
-| `meta-` | Extension management | `meta-skill-create`, `meta-skill-update` |
+| Prefix | Purpose |
+|--------|---------|
+| `meta-skill-` | Skill management |
+| `meta-rule-` | Rule management |
+| `meta-command-` | Command management |
+| `meta-agent-` | Agent management |
+| `meta-hook-` | Hook management |
+| `meta-mcp-` | MCP management |
 
-## Current Skills
+---
 
-| Skill | Layer | Description |
-|-------|-------|-------------|
-| `language-go-cloud` | Foundation | Go standards for cloud services |
-| `language-typescript-node` | Foundation | TypeScript for Node.js |
-| `language-bash` | Foundation | Bash scripting standards |
-| `language-c-zephyr` | Foundation | C for Zephyr RTOS embedded |
-| `framework-react` | Foundation | React component patterns |
-| `framework-bubbletea` | Foundation | Bubble Tea TUI development |
-| `framework-k9s-style` | Foundation | K9s-style terminal UI |
-| `tool-git-workflow` | Foundation | Git, CI/CD, code review practices |
-| `meta-skill-create` | Meta | Creating Claude extensions |
-| `meta-skill-update` | Meta | Updating Claude extensions |
+## Loading Strategy
+
+When given a task, an LLM should parse for:
+
+1. **Technical signals** → `language-`, `framework-`, `platform-`
+2. **Practice signals** → `practice-security-*`, `practice-testing-*`
+3. **Role signals** → `role-developer-*`, `role-reviewer-*`
+
+**Example:** "Build a REST API in Go for Kubernetes"
+```
+language-go-cloud
+platform-kubernetes
+practice-security-auth
+role-developer-backend
+```
+
+---
+
+## Meta Commands
+
+Create and maintain extensions:
+
+| Command | Description |
+|---------|-------------|
+| `/new-skill` | Create a new skill |
+| `/new-rule` | Create a new rule |
+| `/new-command` | Create a new command |
+| `/new-agent` | Create a new agent |
+| `/new-hook` | Create a new hook |
+| `/update-extension` | Update any extension |
+| `/list-extensions` | List all extensions |
+
+---
+
+## Self-Maintenance
+
+This repo maintains itself via weekly CI:
+
+1. **Scan** for outdated patterns
+2. **Web search** for latest best practices
+3. **Propose** updates via PR
+4. **Test** skill changes
+
+---
+
+## Extension Patterns
+
+### Skills
+
+```
+skills/{name}/
+├── SKILL.md          # Main definition (required)
+├── rules/            # Skill-specific rules
+├── reference/        # Quick refs, checklists
+├── scaffolds/        # Code templates
+└── tests/            # Skill tests
+```
+
+**SKILL.md format:**
+```yaml
+---
+name: skill-name
+description: What it does
+---
+
+# Skill Name
+
+Instructions here...
+```
+
+### Commands
+
+```yaml
+---
+description: Brief description
+---
+
+# Command Name
+
+What this command does and how to use it.
+```
+
+### Rules
+
+```markdown
+# Rule Name
+
+What this rule enforces and why.
+
+## Examples
+
+Good and bad examples.
+```
+
+### Agents
+
+```yaml
+---
+name: agent-name
+description: What it does
+tools: Read, Grep, Glob, Bash
+model: sonnet
+---
+
+You are a specialized agent for...
+```
+
+### Hooks
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "Write",
+      "command": "eslint --fix $FILE_PATH"
+    }]
+  }
+}
+```
+
+---
 
 ## Running Tests
-
-Skills include tests to verify Claude follows the patterns correctly:
 
 ```bash
 # Run all skill tests
 SKILL_TEST=1 go test ./...
 
-# Run tests for a specific skill
-SKILL_TEST=1 go test ./skills/framework-bubbletea/tests/...
-
-# Run with verbose output
-SKILL_TEST=1 go test -v ./skills/language-go-cloud/tests/...
+# Run specific skill tests
+SKILL_TEST=1 go test ./skills/meta-skill-create/tests/...
 ```
 
 Tests require:
 - Claude CLI installed
-- `ANTHROPIC_API_KEY` environment variable set
+- `ANTHROPIC_API_KEY` set
 
-Without the API key, tests run in dry-run mode for structure validation.
+---
 
-## Extension Types
+## Validation Checklist
 
-| Type | Storage | Discovery | Nesting |
-|------|---------|-----------|---------|
-| **Skill** | `skills/{name}/SKILL.md` | By folder | Flat only |
-| **Rule** | `rules/**/*.md` | Recursive | Supported |
-| **Agent** | `agents/{name}.md` | By file | Flat only |
-| **Command** | `commands/{name}.md` | By file | Subdirs for namespacing |
-| **Hook** | `settings.json` | Config | N/A |
-| **MCP** | `.mcp.json` | Config | N/A |
+Before adding an extension:
 
-## License
-
-Private configuration repository.
+- [ ] Uses correct naming convention
+- [ ] Has frontmatter with name/description
+- [ ] Folder/file matches name field
+- [ ] Includes usage examples
+- [ ] Has tests (for skills)

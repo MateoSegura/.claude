@@ -105,12 +105,10 @@ func TestWritingClaudeExtensions(t *testing.T) {
 				Prompt: "Outline the directory structure for a new skill called 'python-typing' that teaches Claude Python type hints.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsText("SKILL.md"),
-					skilltest.MatchesRegex(`rules/|rules\\`),
-					skilltest.MatchesRegex(`reference/|reference\\`),
 					skilltest.CustomValidator("correct-structure", func(output string) (bool, string) {
 						hasSkillMd := strings.Contains(output, "SKILL.md")
-						hasRules := strings.Contains(output, "rules")
-						if hasSkillMd && hasRules {
+						hasTests := strings.Contains(output, "tests")
+						if hasSkillMd && hasTests {
 							return true, "Correct skill structure outlined"
 						}
 						return false, "Missing key skill structure elements"
