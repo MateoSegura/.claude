@@ -1,1 +1,1 @@
-# cody-claude-config
+# .claude
