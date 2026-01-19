@@ -1,5 +1,6 @@
 // Command runtest executes extension tests against Claude CLI.
-// Usage: go run ./tests/cmd/runtest
+// Usage: go run ./tests/cmd/runtest [suite]
+// Suites: skills (default), commands, all
 package main
 
 import (
@@ -23,17 +24,41 @@ func main() {
 	runner.Verbose = true
 
 	// WorkDir should be the project root (parent of .claude)
-	// If we're in .claude directory, go up one level
 	workDir, _ := os.Getwd()
 	if _, err := os.Stat(filepath.Join(workDir, "skills")); err == nil {
-		// We're in the .claude directory, go up one level
 		workDir = filepath.Dir(workDir)
 	}
 	runner.WorkDir = workDir
 
-	// Simple focused test suite
-	suite := &tests.Suite{
-		Name:          "meta-skill-create-basic",
+	// Determine which suite to run
+	suiteName := "skills"
+	if len(os.Args) > 1 {
+		suiteName = os.Args[1]
+	}
+
+	var suites []*tests.Suite
+
+	switch suiteName {
+	case "skills":
+		suites = append(suites, skillsSuite())
+	case "commands":
+		suites = append(suites, commandsSuite())
+	case "all":
+		suites = append(suites, skillsSuite(), commandsSuite())
+	default:
+		fmt.Printf("Unknown suite: %s\n", suiteName)
+		fmt.Println("Available: skills, commands, all")
+		os.Exit(1)
+	}
+
+	for _, suite := range suites {
+		runSuite(runner, suite)
+	}
+}
+
+func skillsSuite() *tests.Suite {
+	return &tests.Suite{
+		Name:          "meta-skill-create",
 		ExtensionType: tests.ExtensionSkill,
 		Extension:     "meta-skill-create",
 		Cases: []*tests.TestCase{
@@ -47,7 +72,6 @@ func main() {
 						"The response recommends using a HOOK (specifically mentioning PostToolUse or post-tool-use event) for automatically running commands after file writes",
 					),
 				},
-				Iterations: 1,
 			},
 			{
 				Name:      "recommends-mcp-for-database",
@@ -59,7 +83,6 @@ func main() {
 						"The response recommends using an MCP server (Model Context Protocol) for database access",
 					),
 				},
-				Iterations: 1,
 			},
 			{
 				Name:      "recommends-rule-for-constraint",
@@ -71,15 +94,92 @@ func main() {
 						"The response recommends using a RULE (not a skill) for simple always-on constraints",
 					),
 				},
-				Iterations: 1,
 			},
 		},
 	}
+}
 
+func commandsSuite() *tests.Suite {
+	return &tests.Suite{
+		Name:          "commands",
+		ExtensionType: tests.ExtensionCommand,
+		Cases: []*tests.TestCase{
+			{
+				Name:          "new-skill-template",
+				ExtensionType: tests.ExtensionCommand,
+				Extension:     "new-skill",
+				Prompt:        "Show me how to create a skill called 'language-rust-embedded'. What's the directory structure and SKILL.md template?",
+				Validators: []tests.Validator{
+					tests.LLMValidator("shows-structure", "Response shows skill directory structure with SKILL.md and explains frontmatter format"),
+					tests.ContainsText("SKILL.md"),
+				},
+			},
+			{
+				Name:          "new-rule-template",
+				ExtensionType: tests.ExtensionCommand,
+				Extension:     "new-rule",
+				Prompt:        "Create a rule to prevent console.log in production code. Show me the template.",
+				Validators: []tests.Validator{
+					tests.LLMValidator("shows-rule-format", "Response shows rule markdown format with good/bad examples section"),
+				},
+			},
+			{
+				Name:          "new-command-template",
+				ExtensionType: tests.ExtensionCommand,
+				Extension:     "new-command",
+				Prompt:        "Show me the template for creating a /deploy command.",
+				Validators: []tests.Validator{
+					tests.LLMValidator("shows-command-format", "Response shows command markdown with frontmatter description field"),
+				},
+			},
+			{
+				Name:          "new-agent-template",
+				ExtensionType: tests.ExtensionCommand,
+				Extension:     "new-agent",
+				Prompt:        "Show me the markdown template for creating a code review agent. I want to see the frontmatter format with name, description, tools, and model fields.",
+				Validators: []tests.Validator{
+					tests.LLMValidator("shows-agent-format", "Response shows the agent markdown template structure with frontmatter containing tools field"),
+				},
+			},
+			{
+				Name:          "new-hook-template",
+				ExtensionType: tests.ExtensionCommand,
+				Extension:     "new-hook",
+				Prompt:        "Create a hook to run prettier after writing JavaScript files.",
+				Validators: []tests.Validator{
+					tests.LLMValidator("shows-hook-json", "Response shows JSON hook config with PostToolUse event"),
+					tests.ContainsText("PostToolUse"),
+				},
+			},
+			{
+				Name:          "list-extensions-all",
+				ExtensionType: tests.ExtensionCommand,
+				Extension:     "list-extensions",
+				Prompt:        "List all extensions in this knowledge base.",
+				Validators: []tests.Validator{
+					tests.LLMValidator("lists-extensions", "Response lists extensions by type including skills and commands"),
+				},
+			},
+			{
+				Name:          "update-extension-workflow",
+				ExtensionType: tests.ExtensionCommand,
+				Extension:     "update-extension",
+				Prompt:        "Explain the process for updating an existing skill.",
+				Validators: []tests.Validator{
+					tests.LLMValidator("explains-workflow", "Response explains update workflow with steps like analyze, research, update, test"),
+				},
+			},
+		},
+	}
+}
+
+func runSuite(runner *tests.TestRunner, suite *tests.Suite) {
+	fmt.Printf("\n%s\n", strings.Repeat("=", 60))
 	fmt.Printf("Running test suite: %s\n", suite.Name)
-	fmt.Printf("Extension: %s (%s)\n\n", suite.Extension, suite.ExtensionType)
+	fmt.Printf("Extension type: %s\n", suite.ExtensionType)
+	fmt.Printf("%s\n\n", strings.Repeat("=", 60))
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Minute)
 	defer cancel()
 
 	result, err := runner.RunSuite(ctx, suite)
@@ -89,12 +189,12 @@ func main() {
 	}
 
 	// Print results
-	fmt.Println(strings.Repeat("=", 60))
+	fmt.Println(strings.Repeat("-", 60))
 	fmt.Printf("Suite: %s\n", result.Name)
 	fmt.Printf("Tests: %d total, %d passed, %d failed\n", result.TotalTests, result.Passed, result.Failed)
 	fmt.Printf("Score: %.0f%% (Grade: %s)\n", result.Score*100, tests.DefaultGradeScale().Grade(result.Score))
 	fmt.Printf("Duration: %v\n", result.Duration)
-	fmt.Println(strings.Repeat("=", 60))
+	fmt.Println(strings.Repeat("-", 60))
 
 	for _, r := range result.Results {
 		status := "✓ PASS"
@@ -107,15 +207,21 @@ func main() {
 			if !v.Passed {
 				vStatus = "  ✗"
 			}
-			fmt.Printf("%s %s: %s\n", vStatus, v.Name, v.Message)
+			// Truncate long messages
+			msg := v.Message
+			if len(msg) > 150 {
+				msg = msg[:147] + "..."
+			}
+			fmt.Printf("%s %s: %s\n", vStatus, v.Name, msg)
 		}
 	}
 
 	// Save results
-	if err := runner.SaveSuiteResults(result, "test-results.json"); err != nil {
+	filename := fmt.Sprintf("%s-results.json", suite.Name)
+	if err := runner.SaveSuiteResults(result, filename); err != nil {
 		fmt.Printf("\nWarning: couldn't save results: %v\n", err)
 	} else {
-		fmt.Printf("\nResults saved to %s/test-results.json\n", runner.OutputDir)
+		fmt.Printf("\nResults saved to %s/%s\n", runner.OutputDir, filename)
 	}
 
 	if result.Score < 0.70 {
