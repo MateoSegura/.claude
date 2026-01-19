@@ -1,12 +1,13 @@
-package skilltests
+package tests
 
 import (
 	"context"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/MateoSegura/.claude/skilltest"
 )
 
 // TestBubbleTeaTUI tests the bubbletea-tui skill.
@@ -15,41 +16,40 @@ func TestBubbleTeaTUI(t *testing.T) {
 		t.Skip("Set SKILL_TEST=1 to run skill tests (requires Claude CLI)")
 	}
 
-	runner := NewTestRunner()
-	runner.WorkDir = findProjectRoot()
+	runner := skilltest.NewTestRunner()
 	runner.Verbose = testing.Verbose()
 
-	suite := &Suite{
+	suite := &skilltest.Suite{
 		Name:  "bubbletea-tui",
 		Skill: "bubbletea-tui",
-		Cases: []*TestCase{
+		Cases: []*skilltest.TestCase{
 			{
 				Name:   "basic-model-creation",
 				Skill:  "bubbletea-tui",
 				Prompt: "Create a simple Bubble Tea model for a counter that can increment and decrement. Just show me the Go code.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("tea.Model"),
-					ContainsText("Init()"),
-					ContainsText("Update("),
-					ContainsText("View()"),
-					MatchesRegex(`func.*Update.*tea\.Msg`),
-					NoErrors(),
-					CustomValidator("immutable-update", checkImmutableUpdate),
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("tea.Model"),
+					skilltest.ContainsText("Init()"),
+					skilltest.ContainsText("Update("),
+					skilltest.ContainsText("View()"),
+					skilltest.MatchesRegex(`func.*Update.*tea\.Msg`),
+					skilltest.NoErrors(),
+					skilltest.CustomValidator("immutable-update", checkImmutableUpdate),
 				},
-				Iterations: 3, // Run multiple times for consistency
+				Iterations: 3,
 			},
 			{
 				Name:   "spinner-component",
 				Skill:  "bubbletea-tui",
 				Prompt: "Create a Bubble Tea app that shows a spinner while loading data. Use the bubbles spinner component.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("spinner"),
-					ContainsText("spinner.Model"),
-					MatchesRegex(`spinner\.New\(\)`),
-					ContainsText("spinner.Tick"),
-					NoErrors(),
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("spinner"),
+					skilltest.ContainsText("spinner.Model"),
+					skilltest.MatchesRegex(`spinner\.New\(\)`),
+					skilltest.ContainsText("spinner.Tick"),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -57,12 +57,12 @@ func TestBubbleTeaTUI(t *testing.T) {
 				Name:   "keyboard-handling",
 				Skill:  "bubbletea-tui",
 				Prompt: "Create a Bubble Tea model that handles keyboard input: q to quit, enter to confirm, escape to cancel.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("tea.KeyMsg"),
-					MatchesRegex(`case\s+"q".*tea\.Quit`),
-					ContainsText("key.Type"),
-					NoErrors(),
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("tea.KeyMsg"),
+					skilltest.MatchesRegex(`case\s+"q".*tea\.Quit`),
+					skilltest.ContainsText("key.Type"),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -70,12 +70,12 @@ func TestBubbleTeaTUI(t *testing.T) {
 				Name:   "lipgloss-styling",
 				Skill:  "bubbletea-tui",
 				Prompt: "Create a styled Bubble Tea component using lipgloss with a border, padding, and colors.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("lipgloss"),
-					MatchesRegex(`lipgloss\.NewStyle\(\)`),
-					MatchesRegex(`Border|Padding|Foreground|Background`),
-					NoErrors(),
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("lipgloss"),
+					skilltest.MatchesRegex(`lipgloss\.NewStyle\(\)`),
+					skilltest.MatchesRegex(`Border|Padding|Foreground|Background`),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -83,12 +83,12 @@ func TestBubbleTeaTUI(t *testing.T) {
 				Name:   "command-pattern",
 				Skill:  "bubbletea-tui",
 				Prompt: "Create a Bubble Tea model that fetches data asynchronously using tea.Cmd.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("tea.Cmd"),
-					MatchesRegex(`func\s+\w+\(\)\s+tea\.Cmd`),
-					NoErrors(),
-					CustomValidator("returns-cmd", checkReturnsCmd),
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("tea.Cmd"),
+					skilltest.MatchesRegex(`func\s+\w+\(\)\s+tea\.Cmd`),
+					skilltest.NoErrors(),
+					skilltest.CustomValidator("returns-cmd", checkReturnsCmd),
 				},
 				Iterations: 2,
 			},
@@ -96,12 +96,12 @@ func TestBubbleTeaTUI(t *testing.T) {
 				Name:   "list-component",
 				Skill:  "bubbletea-tui",
 				Prompt: "Create a Bubble Tea app with a selectable list using the bubbles list component. Show items and handle selection.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("list.Model"),
-					ContainsText("list.New"),
-					ContainsText("list.Item"),
-					NoErrors(),
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("list.Model"),
+					skilltest.ContainsText("list.New"),
+					skilltest.ContainsText("list.Item"),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -124,7 +124,7 @@ func TestBubbleTeaTUI(t *testing.T) {
 	// Report
 	t.Logf("Suite: %s", result.Name)
 	t.Logf("Tests: %d total, %d passed, %d failed", result.TotalTests, result.Passed, result.Failed)
-	t.Logf("Score: %.2f%% (Grade: %s)", result.Score*100, DefaultGradeScale().Grade(result.Score))
+	t.Logf("Score: %.2f%% (Grade: %s)", result.Score*100, skilltest.DefaultGradeScale().Grade(result.Score))
 	t.Logf("Duration: %v", result.Duration)
 
 	for _, r := range result.Results {
@@ -138,15 +138,12 @@ func TestBubbleTeaTUI(t *testing.T) {
 		}
 	}
 
-	// Fail if below threshold
 	if result.Score < 0.70 {
 		t.Errorf("Suite score %.2f%% is below 70%% threshold", result.Score*100)
 	}
 }
 
-// checkImmutableUpdate validates that Update returns new state, not mutates.
 func checkImmutableUpdate(output string) (bool, string) {
-	// Look for return m, cmd pattern (good) vs m.field = value without return (bad)
 	hasReturn := strings.Contains(output, "return m,") || strings.Contains(output, "return m ,")
 	hasDirectMutation := strings.Contains(output, "m.") && !strings.Contains(output, "return")
 
@@ -156,9 +153,7 @@ func checkImmutableUpdate(output string) (bool, string) {
 	return false, "Update pattern may have mutation issues"
 }
 
-// checkReturnsCmd validates that async functions return tea.Cmd.
 func checkReturnsCmd(output string) (bool, string) {
-	// Look for function returning tea.Cmd
 	if strings.Contains(output, "tea.Cmd") && strings.Contains(output, "return func()") {
 		return true, "Proper tea.Cmd return pattern found"
 	}
@@ -166,39 +161,4 @@ func checkReturnsCmd(output string) (bool, string) {
 		return true, "tea.Cmd usage found"
 	}
 	return false, "No clear tea.Cmd return pattern"
-}
-
-// findProjectRoot finds the project root by looking for .claude/skills directory.
-func findProjectRoot() string {
-	dir, _ := os.Getwd()
-	for {
-		// Look for .claude/skills directory - that's where skills are
-		skillsDir := filepath.Join(dir, ".claude", "skills")
-		if info, err := os.Stat(skillsDir); err == nil && info.IsDir() {
-			return dir
-		}
-		// Also check if we're inside .claude already
-		if filepath.Base(dir) == ".claude" {
-			parent := filepath.Dir(dir)
-			skillsDir = filepath.Join(parent, ".claude", "skills")
-			if info, err := os.Stat(skillsDir); err == nil && info.IsDir() {
-				return parent
-			}
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			break
-		}
-		dir = parent
-	}
-	// Fallback - try relative path from skill-tests
-	cwd, _ := os.Getwd()
-	if strings.Contains(cwd, "skill-tests") {
-		// We're in .claude/skill-tests, go up to project root
-		parts := strings.Split(cwd, ".claude")
-		if len(parts) > 0 {
-			return strings.TrimSuffix(parts[0], string(filepath.Separator))
-		}
-	}
-	return cwd
 }

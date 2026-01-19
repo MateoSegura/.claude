@@ -1,4 +1,4 @@
-package skilltests
+package tests
 
 import (
 	"context"
@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/MateoSegura/.claude/skilltest"
 )
 
 // TestK9sTUIStyle tests the k9s-tui-style skill.
@@ -14,24 +16,23 @@ func TestK9sTUIStyle(t *testing.T) {
 		t.Skip("Set SKILL_TEST=1 to run skill tests (requires Claude CLI)")
 	}
 
-	runner := NewTestRunner()
-	runner.WorkDir = findProjectRoot()
+	runner := skilltest.NewTestRunner()
 	runner.Verbose = testing.Verbose()
 
-	suite := &Suite{
+	suite := &skilltest.Suite{
 		Name:  "k9s-tui-style",
 		Skill: "k9s-tui-style",
-		Cases: []*TestCase{
+		Cases: []*skilltest.TestCase{
 			{
 				Name:   "chrome-component",
 				Skill:  "k9s-tui-style",
 				Prompt: "Create a K9s-style chrome component with a header showing app name and version, and a footer with keyboard hints.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("header"),
-					ContainsText("footer"),
-					MatchesRegex(`lipgloss|NewStyle`),
-					CustomValidator("has-hints", func(output string) (bool, string) {
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("header"),
+					skilltest.ContainsText("footer"),
+					skilltest.MatchesRegex(`lipgloss|NewStyle`),
+					skilltest.CustomValidator("has-hints", func(output string) (bool, string) {
 						hasHints := strings.Contains(output, "hint") || strings.Contains(output, "Hint") ||
 							strings.Contains(output, "shortcut") || strings.Contains(output, "key")
 						if hasHints {
@@ -39,7 +40,7 @@ func TestK9sTUIStyle(t *testing.T) {
 						}
 						return false, "No keyboard hints pattern found"
 					}),
-					NoErrors(),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -47,12 +48,12 @@ func TestK9sTUIStyle(t *testing.T) {
 				Name:   "list-screen",
 				Skill:  "k9s-tui-style",
 				Prompt: "Create a K9s-style list screen that displays items with selection highlighting. Include vim-style navigation (j/k for up/down).",
-				Validators: []Validator{
-					ContainsCode("go"),
-					MatchesRegex(`case\s+["']j["']|case\s+["']k["']`), // vim keys
-					ContainsText("cursor"),
-					ContainsText("selected"),
-					CustomValidator("highlighting", func(output string) (bool, string) {
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.MatchesRegex(`case\s+["']j["']|case\s+["']k["']`),
+					skilltest.ContainsText("cursor"),
+					skilltest.ContainsText("selected"),
+					skilltest.CustomValidator("highlighting", func(output string) (bool, string) {
 						hasHighlight := strings.Contains(output, "highlight") ||
 							strings.Contains(output, "selected") ||
 							strings.Contains(output, "Background")
@@ -61,7 +62,7 @@ func TestK9sTUIStyle(t *testing.T) {
 						}
 						return false, "No selection highlighting pattern"
 					}),
-					NoErrors(),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -69,13 +70,12 @@ func TestK9sTUIStyle(t *testing.T) {
 				Name:   "form-screen",
 				Skill:  "k9s-tui-style",
 				Prompt: "Create a K9s-style form screen with text inputs and action buttons. Use the K9s dark theme colors.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("textinput"),
-					MatchesRegex(`button|submit|save|confirm`),
-					CustomValidator("dark-theme", func(output string) (bool, string) {
-						// K9s uses dark theme with specific colors
-						hasDark := strings.Contains(output, "#") || // hex colors
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("textinput"),
+					skilltest.MatchesRegex(`button|submit|save|confirm`),
+					skilltest.CustomValidator("dark-theme", func(output string) (bool, string) {
+						hasDark := strings.Contains(output, "#") ||
 							strings.Contains(output, "Background") ||
 							strings.Contains(output, "Color(")
 						if hasDark {
@@ -83,7 +83,7 @@ func TestK9sTUIStyle(t *testing.T) {
 						}
 						return false, "No color styling found"
 					}),
-					NoErrors(),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -91,12 +91,12 @@ func TestK9sTUIStyle(t *testing.T) {
 				Name:   "modal-dialog",
 				Skill:  "k9s-tui-style",
 				Prompt: "Create a K9s-style confirmation modal that overlays the current screen with yes/no options.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					MatchesRegex(`modal|dialog|overlay|confirm`),
-					ContainsText("yes"),
-					ContainsText("no"),
-					CustomValidator("centered", func(output string) (bool, string) {
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.MatchesRegex(`modal|dialog|overlay|confirm`),
+					skilltest.ContainsText("yes"),
+					skilltest.ContainsText("no"),
+					skilltest.CustomValidator("centered", func(output string) (bool, string) {
 						hasCentering := strings.Contains(output, "center") ||
 							strings.Contains(output, "Place") ||
 							strings.Contains(output, "width/2") ||
@@ -106,7 +106,7 @@ func TestK9sTUIStyle(t *testing.T) {
 						}
 						return false, "No modal centering logic"
 					}),
-					NoErrors(),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -114,9 +114,9 @@ func TestK9sTUIStyle(t *testing.T) {
 				Name:   "empty-state",
 				Skill:  "k9s-tui-style",
 				Prompt: "Create a K9s-style empty state view for when there's no data to display. Include an icon and helpful message.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					CustomValidator("icon-or-emoji", func(output string) (bool, string) {
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.CustomValidator("icon-or-emoji", func(output string) (bool, string) {
 						hasIcon := strings.Contains(output, "icon") ||
 							strings.Contains(output, "Icon") ||
 							strings.Contains(output, "📭") ||
@@ -128,8 +128,8 @@ func TestK9sTUIStyle(t *testing.T) {
 						}
 						return false, "No icon or visual indicator"
 					}),
-					MatchesRegex(`empty|no.*data|nothing`),
-					NoErrors(),
+					skilltest.MatchesRegex(`empty|no.*data|nothing`),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -137,11 +137,11 @@ func TestK9sTUIStyle(t *testing.T) {
 				Name:   "color-palette",
 				Skill:  "k9s-tui-style",
 				Prompt: "Define a K9s-style color palette in Go using lipgloss. Include colors for primary, secondary, success, warning, error states.",
-				Validators: []Validator{
-					ContainsCode("go"),
-					ContainsText("lipgloss"),
-					MatchesRegex(`Color\(|AdaptiveColor|#[0-9a-fA-F]{6}`),
-					CustomValidator("semantic-colors", func(output string) (bool, string) {
+				Validators: []skilltest.Validator{
+					skilltest.ContainsCode("go"),
+					skilltest.ContainsText("lipgloss"),
+					skilltest.MatchesRegex(`Color\(|AdaptiveColor|#[0-9a-fA-F]{6}`),
+					skilltest.CustomValidator("semantic-colors", func(output string) (bool, string) {
 						colors := []string{"primary", "secondary", "success", "warning", "error"}
 						found := 0
 						for _, c := range colors {
@@ -154,7 +154,7 @@ func TestK9sTUIStyle(t *testing.T) {
 						}
 						return false, "Missing semantic color names"
 					}),
-					NoErrors(),
+					skilltest.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -169,15 +169,13 @@ func TestK9sTUIStyle(t *testing.T) {
 		t.Fatalf("Suite execution failed: %v", err)
 	}
 
-	// Save results
 	if err := runner.SaveSuiteResults(result, "k9s-results.json"); err != nil {
 		t.Logf("Warning: couldn't save results: %v", err)
 	}
 
-	// Report
 	t.Logf("Suite: %s", result.Name)
 	t.Logf("Tests: %d total, %d passed, %d failed", result.TotalTests, result.Passed, result.Failed)
-	t.Logf("Score: %.2f%% (Grade: %s)", result.Score*100, DefaultGradeScale().Grade(result.Score))
+	t.Logf("Score: %.2f%% (Grade: %s)", result.Score*100, skilltest.DefaultGradeScale().Grade(result.Score))
 	t.Logf("Duration: %v", result.Duration)
 
 	for _, r := range result.Results {
@@ -191,7 +189,6 @@ func TestK9sTUIStyle(t *testing.T) {
 		}
 	}
 
-	// Fail if below threshold
 	if result.Score < 0.70 {
 		t.Errorf("Suite score %.2f%% is below 70%% threshold", result.Score*100)
 	}

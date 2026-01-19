@@ -1,6 +1,6 @@
-// Package skilltests provides a framework for testing Claude Code skills.
+// Package skilltest provides a framework for testing Claude Code skills.
 // Tests call the Claude CLI directly with skills loaded and verify outputs.
-package skilltests
+package skilltest
 
 import (
 	"bytes"
