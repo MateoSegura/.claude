@@ -1,4 +1,4 @@
-package tests
+package meta_skill_update_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/MateoSegura/.claude/skilltest"
+	"github.com/MateoSegura/.claude/tests"
 )
 
 // TestUpdatingClaudeExtension tests the meta-skill-update skill.
@@ -16,19 +16,19 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 		t.Skip("Set SKILL_TEST=1 to run skill tests (requires Claude CLI)")
 	}
 
-	runner := skilltest.NewTestRunner()
+	runner := tests.NewTestRunner()
 	runner.Verbose = testing.Verbose()
 
-	suite := &skilltest.Suite{
+	suite := &tests.Suite{
 		Name:  "meta-skill-update",
 		Skill: "meta-skill-update",
-		Cases: []*skilltest.TestCase{
+		Cases: []*tests.TestCase{
 			{
 				Name:   "discovery-extensions",
 				Skill:  "meta-skill-update",
 				Prompt: "List all extensions in this knowledge base. What's available?",
-				Validators: []skilltest.Validator{
-					skilltest.CustomValidator("finds-meta-skills", func(output string) (bool, string) {
+				Validators: []tests.Validator{
+					tests.CustomValidator("finds-meta-skills", func(output string) (bool, string) {
 						output = strings.ToLower(output)
 						hasCreate := strings.Contains(output, "meta-skill-create") || strings.Contains(output, "create")
 						hasUpdate := strings.Contains(output, "meta-skill-update") || strings.Contains(output, "update")
@@ -37,7 +37,7 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 						}
 						return false, "Did not find meta skills"
 					}),
-					skilltest.NoErrors(),
+					tests.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -45,8 +45,8 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 				Name:   "update-workflow",
 				Skill:  "meta-skill-update",
 				Prompt: "How would I update a skill to add new patterns?",
-				Validators: []skilltest.Validator{
-					skilltest.CustomValidator("mentions-steps", func(output string) (bool, string) {
+				Validators: []tests.Validator{
+					tests.CustomValidator("mentions-steps", func(output string) (bool, string) {
 						output = strings.ToLower(output)
 						hasSteps := (strings.Contains(output, "1.") || strings.Contains(output, "first")) &&
 							(strings.Contains(output, "2.") || strings.Contains(output, "then") || strings.Contains(output, "next"))
@@ -55,7 +55,7 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 						}
 						return false, "No clear update workflow"
 					}),
-					skilltest.CustomValidator("mentions-research", func(output string) (bool, string) {
+					tests.CustomValidator("mentions-research", func(output string) (bool, string) {
 						output = strings.ToLower(output)
 						hasResearch := strings.Contains(output, "search") ||
 							strings.Contains(output, "research") ||
@@ -66,7 +66,7 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 						}
 						return false, "No research step"
 					}),
-					skilltest.NoErrors(),
+					tests.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -74,10 +74,10 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 				Name:   "hook-discovery",
 				Skill:  "meta-skill-update",
 				Prompt: "How do I find and update hooks in this project?",
-				Validators: []skilltest.Validator{
-					skilltest.ContainsText("settings.json"),
-					skilltest.MatchesRegex(`hooks`),
-					skilltest.NoErrors(),
+				Validators: []tests.Validator{
+					tests.ContainsText("settings.json"),
+					tests.MatchesRegex(`hooks`),
+					tests.NoErrors(),
 				},
 				Iterations: 2,
 			},
@@ -98,7 +98,7 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 
 	t.Logf("Suite: %s", result.Name)
 	t.Logf("Tests: %d total, %d passed, %d failed", result.TotalTests, result.Passed, result.Failed)
-	t.Logf("Score: %.2f%% (Grade: %s)", result.Score*100, skilltest.DefaultGradeScale().Grade(result.Score))
+	t.Logf("Score: %.2f%% (Grade: %s)", result.Score*100, tests.DefaultGradeScale().Grade(result.Score))
 	t.Logf("Duration: %v", result.Duration)
 
 	for _, r := range result.Results {

@@ -1,6 +1,7 @@
-// Package skilltest provides a framework for testing Claude Code skills.
-// Tests call the Claude CLI directly with skills loaded and verify outputs.
-package skilltest
+// Package tests provides a framework for testing Claude Code extensions.
+// Tests call the Claude CLI directly with extensions loaded and verify outputs.
+// Supports all extension types: skills, rules, commands, agents, hooks, and MCPs.
+package tests
 
 import (
 	"bytes"
@@ -15,11 +16,23 @@ import (
 	"time"
 )
 
-// TestRunner executes skill tests against Claude CLI.
+// ExtensionType represents the type of Claude Code extension being tested.
+type ExtensionType string
+
+const (
+	ExtensionSkill   ExtensionType = "skill"
+	ExtensionRule    ExtensionType = "rule"
+	ExtensionCommand ExtensionType = "command"
+	ExtensionAgent   ExtensionType = "agent"
+	ExtensionHook    ExtensionType = "hook"
+	ExtensionMCP     ExtensionType = "mcp"
+)
+
+// TestRunner executes extension tests against Claude CLI.
 type TestRunner struct {
 	ClaudeBinary string        // Path to claude binary
 	WorkDir      string        // Working directory for tests
-	OutputDir    string        // Where to save outputs (default /tmp/skill-tests)
+	OutputDir    string        // Where to save outputs (default /tmp/extension-tests)
 	Timeout      time.Duration // Timeout per test
 	Verbose      bool          // Print detailed output
 	DryRun       bool          // If true, validate structure without calling Claude
@@ -37,37 +50,41 @@ func NewTestRunner() *TestRunner {
 	return &TestRunner{
 		ClaudeBinary: "claude",
 		WorkDir:      ".",
-		OutputDir:    "/tmp/skill-tests",
+		OutputDir:    "/tmp/extension-tests",
 		Timeout:      5 * time.Minute,
 		Verbose:      false,
 		DryRun:       dryRun,
 	}
 }
 
-// TestCase defines a single skill test.
+// TestCase defines a single extension test.
 type TestCase struct {
-	Name        string                 // Test name
-	Skill       string                 // Skill to load
-	Prompt      string                 // Task to give Claude
-	Context     string                 // Additional context
-	Validators  []Validator            // Functions to validate output
-	Setup       func(workDir string)   // Optional setup function
-	Teardown    func(workDir string)   // Optional teardown function
-	Expected    map[string]interface{} // Expected values for structured validation
-	Iterations  int                    // Number of times to run (for consistency testing)
+	Name          string                 // Test name
+	ExtensionType ExtensionType          // Type of extension (skill, rule, command, etc.)
+	Extension     string                 // Extension name to load
+	Skill         string                 // Deprecated: use Extension instead (kept for backward compat)
+	Prompt        string                 // Task to give Claude
+	Context       string                 // Additional context
+	Validators    []Validator            // Functions to validate output
+	Setup         func(workDir string)   // Optional setup function
+	Teardown      func(workDir string)   // Optional teardown function
+	Expected      map[string]interface{} // Expected values for structured validation
+	Iterations    int                    // Number of times to run (for consistency testing)
 }
 
 // TestResult captures the outcome of a test run.
 type TestResult struct {
-	Name        string        `json:"name"`
-	Skill       string        `json:"skill"`
-	Passed      bool          `json:"passed"`
-	Score       float64       `json:"score"`      // 0.0-1.0
-	Output      string        `json:"output"`     // Claude's response
-	Duration    time.Duration `json:"duration"`
-	Validations []Validation  `json:"validations"`
-	Error       error         `json:"error,omitempty"`
-	Iteration   int           `json:"iteration"` // Which run this was
+	Name          string        `json:"name"`
+	ExtensionType ExtensionType `json:"extension_type,omitempty"`
+	Extension     string        `json:"extension"`
+	Skill         string        `json:"skill,omitempty"` // Deprecated
+	Passed        bool          `json:"passed"`
+	Score         float64       `json:"score"`      // 0.0-1.0
+	Output        string        `json:"output"`     // Claude's response
+	Duration      time.Duration `json:"duration"`
+	Validations   []Validation  `json:"validations"`
+	Error         error         `json:"error,omitempty"`
+	Iteration     int           `json:"iteration"` // Which run this was
 }
 
 // Validation is a single validation result.
@@ -81,25 +98,29 @@ type Validation struct {
 // Validator checks if output meets expectations.
 type Validator func(output string, result *TestResult) Validation
 
-// Suite is a collection of test cases for a skill.
+// Suite is a collection of test cases for an extension.
 type Suite struct {
-	Name     string      // Suite name
-	Skill    string      // Skill being tested
-	Cases    []*TestCase // Test cases
-	SetupAll func()      // Run before all tests
-	Teardown func()      // Run after all tests
+	Name          string        // Suite name
+	ExtensionType ExtensionType // Type of extension being tested
+	Extension     string        // Extension name being tested
+	Skill         string        // Deprecated: use Extension instead (kept for backward compat)
+	Cases         []*TestCase   // Test cases
+	SetupAll      func()        // Run before all tests
+	Teardown      func()        // Run after all tests
 }
 
 // SuiteResult aggregates results for a suite.
 type SuiteResult struct {
-	Name       string        `json:"name"`
-	Skill      string        `json:"skill"`
-	TotalTests int           `json:"total_tests"`
-	Passed     int           `json:"passed"`
-	Failed     int           `json:"failed"`
-	Score      float64       `json:"score"` // Average score
-	Results    []*TestResult `json:"results"`
-	Duration   time.Duration `json:"duration"`
+	Name          string        `json:"name"`
+	ExtensionType ExtensionType `json:"extension_type,omitempty"`
+	Extension     string        `json:"extension"`
+	Skill         string        `json:"skill,omitempty"` // Deprecated
+	TotalTests    int           `json:"total_tests"`
+	Passed        int           `json:"passed"`
+	Failed        int           `json:"failed"`
+	Score         float64       `json:"score"` // Average score
+	Results       []*TestResult `json:"results"`
+	Duration      time.Duration `json:"duration"`
 }
 
 // GradeScale defines the grading criteria.
@@ -141,10 +162,23 @@ func (g GradeScale) Grade(score float64) string {
 // Run executes a single test case.
 func (r *TestRunner) Run(ctx context.Context, tc *TestCase) (*TestResult, error) {
 	start := time.Now()
+
+	// Handle backward compatibility: use Extension if set, otherwise fall back to Skill
+	extension := tc.Extension
+	if extension == "" {
+		extension = tc.Skill
+	}
+	extensionType := tc.ExtensionType
+	if extensionType == "" {
+		extensionType = ExtensionSkill // Default to skill for backward compat
+	}
+
 	result := &TestResult{
-		Name:      tc.Name,
-		Skill:     tc.Skill,
-		Iteration: 1,
+		Name:          tc.Name,
+		ExtensionType: extensionType,
+		Extension:     extension,
+		Skill:         tc.Skill, // Keep for backward compat
+		Iteration:     1,
 	}
 
 	// Create test workspace
@@ -166,7 +200,7 @@ func (r *TestRunner) Run(ctx context.Context, tc *TestCase) (*TestResult, error)
 	}()
 
 	// Build Claude command
-	output, err := r.runClaude(ctx, workDir, tc.Skill, tc.Prompt, tc.Context)
+	output, err := r.runClaude(ctx, workDir, extensionType, extension, tc.Prompt, tc.Context)
 	if err != nil {
 		result.Error = err
 		result.Duration = time.Since(start)
@@ -204,9 +238,22 @@ func (r *TestRunner) Run(ctx context.Context, tc *TestCase) (*TestResult, error)
 // RunSuite executes all tests in a suite.
 func (r *TestRunner) RunSuite(ctx context.Context, suite *Suite) (*SuiteResult, error) {
 	start := time.Now()
+
+	// Handle backward compatibility
+	extension := suite.Extension
+	if extension == "" {
+		extension = suite.Skill
+	}
+	extensionType := suite.ExtensionType
+	if extensionType == "" {
+		extensionType = ExtensionSkill
+	}
+
 	result := &SuiteResult{
-		Name:  suite.Name,
-		Skill: suite.Skill,
+		Name:          suite.Name,
+		ExtensionType: extensionType,
+		Extension:     extension,
+		Skill:         suite.Skill, // Keep for backward compat
 	}
 
 	if suite.SetupAll != nil {
@@ -256,35 +303,75 @@ func (r *TestRunner) RunSuite(ctx context.Context, suite *Suite) (*SuiteResult, 
 	return result, nil
 }
 
-// runClaude executes the Claude CLI with a skill loaded.
-func (r *TestRunner) runClaude(ctx context.Context, workDir, skill, prompt, context string) (string, error) {
+// runClaude executes the Claude CLI with an extension loaded.
+func (r *TestRunner) runClaude(ctx context.Context, workDir string, extType ExtensionType, extension, prompt, ctxStr string) (string, error) {
 	// In dry run mode, return a simulated response for structure validation
 	if r.DryRun {
-		return r.simulateResponse(skill, prompt), nil
+		return r.simulateResponse(extension, prompt), nil
 	}
 
 	args := []string{
-		"--print",  // Non-interactive mode
+		"--print",                        // Non-interactive mode
 		"--dangerously-skip-permissions", // Skip prompts for testing
 	}
 
-	// Add skill if specified
-	if skill != "" {
-		// Skills are loaded from the working directory's .claude/skills/
-		skillPath := filepath.Join(workDir, ".claude", "skills", skill)
-		if _, err := os.Stat(skillPath); os.IsNotExist(err) {
-			// Copy skill to test workspace
-			srcSkill := filepath.Join(r.WorkDir, ".claude", "skills", skill)
-			if err := copyDir(srcSkill, skillPath); err != nil {
-				return "", fmt.Errorf("copy skill: %w", err)
+	// Copy extension to test workspace based on type
+	if extension != "" {
+		var srcPath, dstPath string
+		switch extType {
+		case ExtensionSkill:
+			srcPath = filepath.Join(r.WorkDir, ".claude", "skills", extension)
+			dstPath = filepath.Join(workDir, ".claude", "skills", extension)
+		case ExtensionRule:
+			srcPath = filepath.Join(r.WorkDir, ".claude", "rules", extension)
+			dstPath = filepath.Join(workDir, ".claude", "rules", extension)
+		case ExtensionCommand:
+			srcPath = filepath.Join(r.WorkDir, ".claude", "commands", extension+".md")
+			dstPath = filepath.Join(workDir, ".claude", "commands", extension+".md")
+		case ExtensionAgent:
+			srcPath = filepath.Join(r.WorkDir, ".claude", "agents", extension+".md")
+			dstPath = filepath.Join(workDir, ".claude", "agents", extension+".md")
+		case ExtensionHook, ExtensionMCP:
+			// Hooks and MCPs are in settings files, copy entire .claude config
+			srcPath = filepath.Join(r.WorkDir, ".claude")
+			dstPath = filepath.Join(workDir, ".claude")
+		default:
+			srcPath = filepath.Join(r.WorkDir, ".claude", "skills", extension)
+			dstPath = filepath.Join(workDir, ".claude", "skills", extension)
+		}
+
+		if _, err := os.Stat(dstPath); os.IsNotExist(err) {
+			// Ensure parent directory exists
+			if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
+				return "", fmt.Errorf("create extension dir: %w", err)
+			}
+
+			// Copy based on whether source is file or directory
+			srcInfo, err := os.Stat(srcPath)
+			if err != nil {
+				return "", fmt.Errorf("stat extension source: %w", err)
+			}
+
+			if srcInfo.IsDir() {
+				if err := copyDir(srcPath, dstPath); err != nil {
+					return "", fmt.Errorf("copy extension: %w", err)
+				}
+			} else {
+				data, err := os.ReadFile(srcPath)
+				if err != nil {
+					return "", fmt.Errorf("read extension: %w", err)
+				}
+				if err := os.WriteFile(dstPath, data, srcInfo.Mode()); err != nil {
+					return "", fmt.Errorf("write extension: %w", err)
+				}
 			}
 		}
 	}
 
 	// Build the full prompt
 	fullPrompt := prompt
-	if context != "" {
-		fullPrompt = fmt.Sprintf("Context:\n%s\n\nTask:\n%s", context, prompt)
+	if ctxStr != "" {
+		fullPrompt = fmt.Sprintf("Context:\n%s\n\nTask:\n%s", ctxStr, prompt)
 	}
 	args = append(args, fullPrompt)
 
@@ -315,12 +402,20 @@ func (r *TestRunner) createWorkspace(testName string) (string, error) {
 		return "", err
 	}
 
-	// Create .claude directory structure
-	if err := os.MkdirAll(filepath.Join(dir, ".claude", "skills"), 0755); err != nil {
-		return "", err
+	// Create .claude directory structure for all extension types
+	dirs := []string{
+		filepath.Join(dir, ".claude", "skills"),
+		filepath.Join(dir, ".claude", "rules"),
+		filepath.Join(dir, ".claude", "commands"),
+		filepath.Join(dir, ".claude", "agents"),
+	}
+	for _, d := range dirs {
+		if err := os.MkdirAll(d, 0755); err != nil {
+			return "", err
+		}
 	}
 
-	// Initialize as git repo (skills often expect this)
+	// Initialize as git repo (extensions often expect this)
 	if err := os.MkdirAll(filepath.Join(dir, ".git"), 0755); err != nil {
 		return "", err
 	}
