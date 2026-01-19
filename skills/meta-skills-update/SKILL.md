@@ -1,6 +1,6 @@
 ---
-name: updating-claude-extension
-description: Parse available Claude extensions, let user select one, then use web search, exploration, and questions to help update it
+name: meta-skills-update
+description: Update existing Claude Code extensions with web search and interactive guidance
 ---
 
 # Updating Claude Extensions

@@ -1,6 +1,6 @@
 ---
-name: devops-standard
-description: Universal DevOps practices for git, code review, documentation, security principles, and CI/CD principles (project)
+name: devops-workflow-standard
+description: Universal DevOps practices for git, code review, CI/CD, and security
 ---
 
 # DevOps Standard

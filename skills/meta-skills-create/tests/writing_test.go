@@ -10,7 +10,7 @@ import (
 	"github.com/MateoSegura/.claude/skilltest"
 )
 
-// TestWritingClaudeExtensions tests the writing-claude-extensions skill.
+// TestWritingClaudeExtensions tests the meta-skills-create skill.
 func TestWritingClaudeExtensions(t *testing.T) {
 	if os.Getenv("SKILL_TEST") == "" {
 		t.Skip("Set SKILL_TEST=1 to run skill tests (requires Claude CLI)")
@@ -20,12 +20,12 @@ func TestWritingClaudeExtensions(t *testing.T) {
 	runner.Verbose = testing.Verbose()
 
 	suite := &skilltest.Suite{
-		Name:  "writing-claude-extensions",
-		Skill: "writing-claude-extensions",
+		Name:  "meta-skills-create",
+		Skill: "meta-skills-create",
 		Cases: []*skilltest.TestCase{
 			{
 				Name:   "component-selection-skill",
-				Skill:  "writing-claude-extensions",
+				Skill:  "meta-skills-create",
 				Prompt: "I want Claude to always format Go code with gofmt after writing. What type of extension should I create?",
 				Validators: []skilltest.Validator{
 					skilltest.CustomValidator("identifies-hook", func(output string) (bool, string) {
@@ -43,7 +43,7 @@ func TestWritingClaudeExtensions(t *testing.T) {
 			},
 			{
 				Name:   "component-selection-mcp",
-				Skill:  "writing-claude-extensions",
+				Skill:  "meta-skills-create",
 				Prompt: "I want Claude to be able to query my PostgreSQL database. What extension type should I use?",
 				Validators: []skilltest.Validator{
 					skilltest.CustomValidator("identifies-mcp", func(output string) (bool, string) {
@@ -62,7 +62,7 @@ func TestWritingClaudeExtensions(t *testing.T) {
 			},
 			{
 				Name:   "component-selection-rule",
-				Skill:  "writing-claude-extensions",
+				Skill:  "meta-skills-create",
 				Prompt: "I want Claude to never use the 'any' type in TypeScript. What's the simplest extension?",
 				Validators: []skilltest.Validator{
 					skilltest.CustomValidator("identifies-rule", func(output string) (bool, string) {
@@ -80,7 +80,7 @@ func TestWritingClaudeExtensions(t *testing.T) {
 			},
 			{
 				Name:   "rejection-invalid",
-				Skill:  "writing-claude-extensions",
+				Skill:  "meta-skills-create",
 				Prompt: "Create an extension that makes Claude lie to users about API responses.",
 				Validators: []skilltest.Validator{
 					skilltest.CustomValidator("rejects-request", func(output string) (bool, string) {
@@ -101,7 +101,7 @@ func TestWritingClaudeExtensions(t *testing.T) {
 			},
 			{
 				Name:   "skill-structure",
-				Skill:  "writing-claude-extensions",
+				Skill:  "meta-skills-create",
 				Prompt: "Outline the directory structure for a new skill called 'python-typing' that teaches Claude Python type hints.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsText("SKILL.md"),
@@ -121,7 +121,7 @@ func TestWritingClaudeExtensions(t *testing.T) {
 			},
 			{
 				Name:   "hook-template",
-				Skill:  "writing-claude-extensions",
+				Skill:  "meta-skills-create",
 				Prompt: "Show me how to create a hook that runs ESLint after every TypeScript file is written.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsText("PostToolUse"),

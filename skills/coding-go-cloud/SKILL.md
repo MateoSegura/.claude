@@ -1,6 +1,6 @@
 ---
-name: go-standard
-description: Complete Go coding standard reference (project)
+name: coding-go-cloud
+description: Go coding standard for cloud services and APIs
 ---
 
 # Go Coding Standard

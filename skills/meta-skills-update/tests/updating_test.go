@@ -10,7 +10,7 @@ import (
 	"github.com/MateoSegura/.claude/skilltest"
 )
 
-// TestUpdatingClaudeExtension tests the updating-claude-extension skill.
+// TestUpdatingClaudeExtension tests the meta-skills-update skill.
 func TestUpdatingClaudeExtension(t *testing.T) {
 	if os.Getenv("SKILL_TEST") == "" {
 		t.Skip("Set SKILL_TEST=1 to run skill tests (requires Claude CLI)")
@@ -20,12 +20,12 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 	runner.Verbose = testing.Verbose()
 
 	suite := &skilltest.Suite{
-		Name:  "updating-claude-extension",
-		Skill: "updating-claude-extension",
+		Name:  "meta-skills-update",
+		Skill: "meta-skills-update",
 		Cases: []*skilltest.TestCase{
 			{
 				Name:   "discovery-skills",
-				Skill:  "updating-claude-extension",
+				Skill:  "meta-skills-update",
 				Prompt: "List all skills in this project. What skills are available?",
 				Validators: []skilltest.Validator{
 					skilltest.CustomValidator("finds-skills", func(output string) (bool, string) {
@@ -48,7 +48,7 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 			},
 			{
 				Name:   "update-workflow",
-				Skill:  "updating-claude-extension",
+				Skill:  "meta-skills-update",
 				Prompt: "How would I update the bubbletea-tui skill to support a new version of the bubbletea library?",
 				Validators: []skilltest.Validator{
 					skilltest.CustomValidator("mentions-steps", func(output string) (bool, string) {
@@ -76,7 +76,7 @@ func TestUpdatingClaudeExtension(t *testing.T) {
 			},
 			{
 				Name:   "hook-discovery",
-				Skill:  "updating-claude-extension",
+				Skill:  "meta-skills-update",
 				Prompt: "How do I find and update hooks in this project?",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsText("settings.json"),

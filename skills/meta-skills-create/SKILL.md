@@ -1,6 +1,6 @@
 ---
-name: writing-claude-extensions
-description: Guide for creating new skills, commands, hooks, agents, rules, and MCPs for Claude Code
+name: meta-skills-create
+description: Guide for creating Claude Code extensions (skills, commands, hooks, agents, rules, MCPs)
 ---
 
 # Writing Claude Extensions

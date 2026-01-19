@@ -1,6 +1,6 @@
 ---
-name: c-zephyr-standard
-description: Complete C/Zephyr RTOS coding standard reference (project)
+name: coding-c-zephyr
+description: C programming standards for Zephyr RTOS embedded systems
 ---
 
 # C/Zephyr RTOS Coding Standard

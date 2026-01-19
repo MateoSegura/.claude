@@ -1,6 +1,6 @@
 ---
-name: typescript-standard
-description: Complete TypeScript coding standard reference (project)
+name: coding-typescript-node
+description: TypeScript coding standard for Node.js applications
 ---
 
 # TypeScript Coding Standard

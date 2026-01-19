@@ -1,6 +1,6 @@
 ---
-name: bash-standard
-description: Complete Bash/Shell scripting coding standard reference (project)
+name: coding-bash-scripts
+description: Bash/Shell scripting standards and best practices
 ---
 
 # Bash/Shell Scripting Coding Standard

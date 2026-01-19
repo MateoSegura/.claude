@@ -1,6 +1,6 @@
 # .claude
 
-Shared Claude Code configuration - skills, rules, hooks, and more.
+Shared Claude Code configuration - a scalable knowledge base for AI factory agents.
 
 ## Usage
 
@@ -15,32 +15,50 @@ git submodule add https://github.com/MateoSegura/.claude.git .claude
 ```
 .claude/
 ├── skills/           # Multi-step workflows with rules, scaffolds, and tests
-├── rules/            # Simple always-on guidelines
+├── rules/            # Simple always-on guidelines (supports nesting)
 ├── hooks/            # Shell commands triggered by tool events
 ├── agents/           # Specialized subagents for delegated tasks
 ├── mcp-servers/      # External API/service integrations
 ├── commands/         # Slash commands
-├── skilltest/        # Shared testing framework for skills
+├── skilltest/        # Shared Go testing framework
+├── NAMING.md         # Extension naming convention
 ├── settings.json     # Global Claude Code settings
-└── go.mod           # Go module for tests
+└── go.mod            # Go module for tests
 ```
+
+## Naming Convention
+
+All extensions follow the pattern: `<domain>-<subdomain>-<specific>`
+
+See [NAMING.md](NAMING.md) for the complete taxonomy.
+
+### Domains
+
+| Domain | Description |
+|--------|-------------|
+| `coding-*` | Programming standards by language/context |
+| `design-*` | UI/UX design patterns |
+| `docs-*` | Documentation standards |
+| `architecture-*` | System architecture patterns |
+| `devops-*` | Operations and infrastructure |
+| `testing-*` | Testing methodologies |
+| `workflow-*` | Development workflows |
+| `meta-*` | Claude extensions about Claude |
 
 ## Skills
 
-Skills are comprehensive guides that teach Claude specific patterns and practices:
-
-| Skill | Description |
-|-------|-------------|
-| `bubbletea-tui` | Bubble Tea TUI development patterns |
-| `k9s-tui-style` | K9s-style terminal UI design |
-| `coding-standard-bash` | Bash scripting standards |
-| `coding-standard-c-zephyr` | C/Zephyr embedded development |
-| `coding-standard-go-cloud` | Go cloud services standards |
-| `coding-standard-react` | React component standards |
-| `coding-standard-typescript` | TypeScript coding standards |
-| `devops-standard` | DevOps practices and CI/CD |
-| `writing-claude-extensions` | Creating Claude Code extensions |
-| `updating-claude-extension` | Updating existing extensions |
+| Skill | Domain | Description |
+|-------|--------|-------------|
+| `coding-go-cloud` | coding | Go standards for cloud services |
+| `coding-typescript-node` | coding | TypeScript for Node.js |
+| `coding-react-components` | coding | React component patterns |
+| `coding-bash-scripts` | coding | Bash scripting standards |
+| `coding-c-zephyr` | coding | C for Zephyr RTOS embedded |
+| `design-tui-bubbletea` | design | Bubble Tea TUI development |
+| `design-tui-k9s` | design | K9s-style terminal UI |
+| `devops-workflow-standard` | devops | Git, CI/CD, code review practices |
+| `meta-skills-create` | meta | Creating Claude extensions |
+| `meta-skills-update` | meta | Updating Claude extensions |
 
 ## Running Tests
 
@@ -51,10 +69,10 @@ Skills include tests to verify Claude follows the patterns correctly:
 SKILL_TEST=1 go test ./...
 
 # Run tests for a specific skill
-SKILL_TEST=1 go test ./skills/bubbletea-tui/tests/...
+SKILL_TEST=1 go test ./skills/design-tui-bubbletea/tests/...
 
 # Run with verbose output
-SKILL_TEST=1 go test -v ./skills/k9s-tui-style/tests/...
+SKILL_TEST=1 go test -v ./skills/coding-go-cloud/tests/...
 ```
 
 Tests require:
@@ -65,14 +83,14 @@ Without the API key, tests run in dry-run mode for structure validation.
 
 ## Extension Types
 
-| Type | Use Case |
-|------|----------|
-| **Skill** | Complex multi-step workflows with rules, examples, and scaffolds |
-| **Rule** | Simple always-on constraints (e.g., "never use `any` type") |
-| **Hook** | Automated actions after tool use (e.g., run formatter after write) |
-| **Agent** | Specialized sub-agents for delegated tasks |
-| **MCP Server** | External API/database integrations |
-| **Command** | Slash commands for quick actions |
+| Type | Storage | Discovery | Nesting |
+|------|---------|-----------|---------|
+| **Skill** | `skills/[name]/SKILL.md` | By folder | Flat only |
+| **Rule** | `rules/**/*.md` | Recursive | Supported |
+| **Agent** | `agents/[name].md` | By file | Flat only |
+| **Command** | `commands/[name].md` | By file | Subdirs for namespacing |
+| **Hook** | `settings.json` | Config | N/A |
+| **MCP** | `.mcp.json` | Config | N/A |
 
 ## License
 

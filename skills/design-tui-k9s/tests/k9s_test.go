@@ -10,7 +10,7 @@ import (
 	"github.com/MateoSegura/.claude/skilltest"
 )
 
-// TestK9sTUIStyle tests the k9s-tui-style skill.
+// TestK9sTUIStyle tests the design-tui-k9s skill.
 func TestK9sTUIStyle(t *testing.T) {
 	if os.Getenv("SKILL_TEST") == "" {
 		t.Skip("Set SKILL_TEST=1 to run skill tests (requires Claude CLI)")
@@ -20,12 +20,12 @@ func TestK9sTUIStyle(t *testing.T) {
 	runner.Verbose = testing.Verbose()
 
 	suite := &skilltest.Suite{
-		Name:  "k9s-tui-style",
-		Skill: "k9s-tui-style",
+		Name:  "design-tui-k9s",
+		Skill: "design-tui-k9s",
 		Cases: []*skilltest.TestCase{
 			{
 				Name:   "chrome-component",
-				Skill:  "k9s-tui-style",
+				Skill:  "design-tui-k9s",
 				Prompt: "Create a K9s-style chrome component with a header showing app name and version, and a footer with keyboard hints.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -46,7 +46,7 @@ func TestK9sTUIStyle(t *testing.T) {
 			},
 			{
 				Name:   "list-screen",
-				Skill:  "k9s-tui-style",
+				Skill:  "design-tui-k9s",
 				Prompt: "Create a K9s-style list screen that displays items with selection highlighting. Include vim-style navigation (j/k for up/down).",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -68,7 +68,7 @@ func TestK9sTUIStyle(t *testing.T) {
 			},
 			{
 				Name:   "form-screen",
-				Skill:  "k9s-tui-style",
+				Skill:  "design-tui-k9s",
 				Prompt: "Create a K9s-style form screen with text inputs and action buttons. Use the K9s dark theme colors.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -89,7 +89,7 @@ func TestK9sTUIStyle(t *testing.T) {
 			},
 			{
 				Name:   "modal-dialog",
-				Skill:  "k9s-tui-style",
+				Skill:  "design-tui-k9s",
 				Prompt: "Create a K9s-style confirmation modal that overlays the current screen with yes/no options.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -112,7 +112,7 @@ func TestK9sTUIStyle(t *testing.T) {
 			},
 			{
 				Name:   "empty-state",
-				Skill:  "k9s-tui-style",
+				Skill:  "design-tui-k9s",
 				Prompt: "Create a K9s-style empty state view for when there's no data to display. Include an icon and helpful message.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -135,7 +135,7 @@ func TestK9sTUIStyle(t *testing.T) {
 			},
 			{
 				Name:   "color-palette",
-				Skill:  "k9s-tui-style",
+				Skill:  "design-tui-k9s",
 				Prompt: "Define a K9s-style color palette in Go using lipgloss. Include colors for primary, secondary, success, warning, error states.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),

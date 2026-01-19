@@ -1,6 +1,6 @@
 ---
-name: react-standard
-description: Complete React coding standard reference (project)
+name: coding-react-components
+description: React component development standards and patterns
 ---
 
 # React Coding Standard
