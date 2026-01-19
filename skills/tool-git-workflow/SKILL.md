@@ -1,5 +1,5 @@
 ---
-name: devops-workflow-standard
+name: tool-git-workflow
 description: Universal DevOps practices for git, code review, CI/CD, and security
 ---
 

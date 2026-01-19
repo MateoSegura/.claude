@@ -1,5 +1,5 @@
 ---
-name: coding-go-cloud
+name: language-go-cloud
 description: Go coding standard for cloud services and APIs
 ---
 

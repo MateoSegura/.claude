@@ -1,5 +1,5 @@
 ---
-name: design-tui-bubbletea
+name: framework-bubbletea
 description: Complete Bubble Tea TUI development standard for Go terminal applications
 ---
 

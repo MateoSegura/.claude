@@ -1,5 +1,5 @@
 ---
-name: meta-skills-create
+name: meta-skill-create
 description: Guide for creating Claude Code extensions (skills, commands, hooks, agents, rules, MCPs)
 ---
 

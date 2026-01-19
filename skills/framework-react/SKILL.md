@@ -1,5 +1,5 @@
 ---
-name: coding-react-components
+name: framework-react
 description: React component development standards and patterns
 ---
 

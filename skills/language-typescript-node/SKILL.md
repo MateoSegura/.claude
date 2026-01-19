@@ -1,5 +1,5 @@
 ---
-name: coding-typescript-node
+name: language-typescript-node
 description: TypeScript coding standard for Node.js applications
 ---
 

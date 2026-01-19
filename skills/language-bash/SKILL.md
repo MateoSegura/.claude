@@ -1,5 +1,5 @@
 ---
-name: coding-bash-scripts
+name: language-bash
 description: Bash/Shell scripting standards and best practices
 ---
 

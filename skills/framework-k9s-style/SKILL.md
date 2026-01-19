@@ -1,5 +1,5 @@
 ---
-name: design-tui-k9s
+name: framework-k9s-style
 description: K9s-inspired terminal UI design system for professional CLI tools
 ---
 

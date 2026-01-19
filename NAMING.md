@@ -2,123 +2,95 @@
 
 This document defines the naming taxonomy for all Claude Code extensions in this knowledge base.
 
+> **Quick Reference:** See [GUIDE.md](GUIDE.md) for loading instructions and composition examples.
+
 ## Constraints
 
 | Extension | Structure | Discovery |
 |-----------|-----------|-----------|
-| **Skills** | Flat: `skills/[name]/SKILL.md` | By folder name |
-| **Agents** | Flat: `agents/[name].md` | By filename |
-| **Commands** | Flat-ish: `commands/[name].md` | By filename |
-| **Rules** | Nested OK: `rules/[path]/[name].md` | Recursive |
+| **Skills** | Flat: `skills/{name}/SKILL.md` | By folder name |
+| **Agents** | Flat: `agents/{name}.md` | By filename |
+| **Commands** | Flat-ish: `commands/{name}.md` | By filename |
+| **Rules** | Nested OK: `rules/{path}/{name}.md` | Recursive |
 | **Hooks** | Config only: `settings.json` | N/A |
 | **MCP** | Config only: `.mcp.json` | N/A |
 
-## Naming Pattern
+## Naming Philosophy
 
-```
-<domain>-<subdomain>-<specifics>
-```
+Names are designed for **LLM parseability** - an agent should be able to self-select relevant skills based on task context without explicit mappings.
 
 ### Format Rules
 
-1. **Lowercase with hyphens** - `coding-go-cloud` not `Coding_Go_Cloud`
-2. **Domain first** - enables alphabetical grouping
+1. **Lowercase with hyphens** - `language-go-cloud` not `Language_Go_Cloud`
+2. **Layer prefix first** - enables categorical discovery
 3. **Increasing specificity** - broad → narrow
-4. **No abbreviations** - `typescript` not `ts`, `architecture` not `arch`
-5. **Max 3 segments** - `domain-subdomain-specific`
+4. **No abbreviations** - `typescript` not `ts`, `security` not `sec`
+5. **Descriptive over brief** - clarity for machine parsing
 
 ---
 
-## Domain Taxonomy
+## Two-Layer Taxonomy
 
-### `coding-*` — Programming Standards
+### Layer 1: Foundations
 
-Standards for writing code in specific languages and contexts.
+Shared knowledge that multiple roles can load. These provide **what to know**.
 
-| Subdomain | Description | Examples |
-|-----------|-------------|----------|
-| `coding-go-*` | Go language | `coding-go-cloud`, `coding-go-cli` |
-| `coding-typescript-*` | TypeScript | `coding-typescript-node`, `coding-typescript-browser` |
-| `coding-python-*` | Python | `coding-python-ml`, `coding-python-api` |
-| `coding-c-*` | C language | `coding-c-embedded`, `coding-c-zephyr` |
-| `coding-rust-*` | Rust language | `coding-rust-embedded`, `coding-rust-wasm` |
-| `coding-bash-*` | Shell scripting | `coding-bash-scripts`, `coding-bash-ci` |
-| `coding-react-*` | React framework | `coding-react-components`, `coding-react-native` |
+#### Technical Foundations
 
-### `design-*` — Design Standards
+| Prefix | Purpose | Pattern | Examples |
+|--------|---------|---------|----------|
+| `language-` | Programming language standards | `language-{lang}-{context}` | `language-go-cloud`, `language-typescript-node`, `language-c-embedded` |
+| `framework-` | Framework-specific patterns | `framework-{name}` | `framework-react`, `framework-bubbletea`, `framework-gin`, `framework-nextjs` |
+| `platform-` | Platform/infrastructure | `platform-{name}` | `platform-kubernetes`, `platform-aws`, `platform-zephyr`, `platform-vercel` |
+| `tool-` | Tool-specific workflows | `tool-{name}` | `tool-git`, `tool-docker`, `tool-terraform`, `tool-nix` |
 
-UI/UX design patterns and visual standards.
+#### Practice Foundations
 
-| Subdomain | Description | Examples |
-|-----------|-------------|----------|
-| `design-tui-*` | Terminal UIs | `design-tui-bubbletea`, `design-tui-k9s` |
-| `design-web-*` | Web design | `design-web-tailwind`, `design-web-accessibility` |
-| `design-mobile-*` | Mobile design | `design-mobile-ios`, `design-mobile-android` |
-| `design-system-*` | Design systems | `design-system-tokens`, `design-system-components` |
+Cross-cutting concerns that apply regardless of technology stack:
 
-### `docs-*` — Documentation Standards
+| Prefix | Purpose | Pattern | Examples |
+|--------|---------|---------|----------|
+| `practice-security-` | Security patterns | `practice-security-{area}` | `practice-security-auth`, `practice-security-input-validation`, `practice-security-secrets` |
+| `practice-documentation-` | Documentation standards | `practice-documentation-{type}` | `practice-documentation-api`, `practice-documentation-architecture`, `practice-documentation-runbook` |
+| `practice-testing-` | Testing methodologies | `practice-testing-{method}` | `practice-testing-tdd`, `practice-testing-property-based`, `practice-testing-mutation` |
+| `practice-performance-` | Performance patterns | `practice-performance-{area}` | `practice-performance-profiling`, `practice-performance-caching`, `practice-performance-database` |
+| `practice-accessibility-` | Accessibility standards | `practice-accessibility-{platform}` | `practice-accessibility-web`, `practice-accessibility-mobile` |
+| `practice-observability-` | Logging/metrics/tracing | `practice-observability-{aspect}` | `practice-observability-logging`, `practice-observability-metrics`, `practice-observability-tracing` |
 
-Technical writing and documentation patterns.
+#### Domain Foundations
 
-| Subdomain | Description | Examples |
-|-----------|-------------|----------|
-| `docs-api-*` | API docs | `docs-api-openapi`, `docs-api-graphql` |
-| `docs-technical-*` | Technical writing | `docs-technical-adr`, `docs-technical-runbooks` |
-| `docs-user-*` | User documentation | `docs-user-guides`, `docs-user-tutorials` |
-| `docs-code-*` | Code documentation | `docs-code-comments`, `docs-code-readme` |
+Industry and business domain expertise:
 
-### `architecture-*` — System Architecture
+| Prefix | Purpose | Pattern | Examples |
+|--------|---------|---------|----------|
+| `domain-` | Domain-specific knowledge | `domain-{industry}` | `domain-fintech`, `domain-healthcare`, `domain-iot`, `domain-gaming`, `domain-ecommerce` |
 
-System design and architectural patterns.
+### Layer 2: Roles
 
-| Subdomain | Description | Examples |
-|-----------|-------------|----------|
-| `architecture-cloud-*` | Cloud patterns | `architecture-cloud-aws`, `architecture-cloud-gcp` |
-| `architecture-distributed-*` | Distributed systems | `architecture-distributed-events`, `architecture-distributed-cqrs` |
-| `architecture-embedded-*` | Embedded systems | `architecture-embedded-rtos`, `architecture-embedded-firmware` |
-| `architecture-data-*` | Data architecture | `architecture-data-pipeline`, `architecture-data-lake` |
+Behavioral overlays that define how an agent acts. These provide **how to behave**.
 
-### `devops-*` — Operations & Infrastructure
+| Prefix | Role | Responsibilities | Examples |
+|--------|------|------------------|----------|
+| `role-manager-` | Manager | Task decomposition, orchestration, long-running coordination, delegation | `role-manager-planning`, `role-manager-decomposition`, `role-manager-delegation` |
+| `role-architect-` | Architect | System design, technical decisions, API design, data modeling | `role-architect-system`, `role-architect-api`, `role-architect-data` |
+| `role-developer-` | Developer | Code implementation, following standards, writing clean code | `role-developer-backend`, `role-developer-frontend`, `role-developer-fullstack` |
+| `role-reviewer-` | Reviewer | Code review, security audits, quality gates | `role-reviewer-code`, `role-reviewer-security`, `role-reviewer-architecture` |
+| `role-tester-` | Tester | Test strategy, test implementation, coverage analysis | `role-tester-unit`, `role-tester-integration`, `role-tester-e2e` |
+| `role-devops-` | DevOps | CI/CD pipelines, deployment, infrastructure as code | `role-devops-pipeline`, `role-devops-release`, `role-devops-infrastructure` |
+| `role-sre-` | SRE | Monitoring, debugging, incident response, reliability | `role-sre-debugging`, `role-sre-monitoring`, `role-sre-incident` |
+| `role-writer-` | Writer | Technical documentation, specs, guides, tutorials | `role-writer-technical`, `role-writer-api`, `role-writer-tutorial` |
+| `role-pm-` | Product Manager | Requirements gathering, prioritization, roadmapping | `role-pm-requirements`, `role-pm-prioritization`, `role-pm-roadmap` |
+| `role-designer-` | Designer | UI/UX design, prototyping, design systems | `role-designer-ui`, `role-designer-ux`, `role-designer-system` |
 
-CI/CD, infrastructure, and operational patterns.
+### Meta Layer
 
-| Subdomain | Description | Examples |
-|-----------|-------------|----------|
-| `devops-cicd-*` | CI/CD pipelines | `devops-cicd-github`, `devops-cicd-gitlab` |
-| `devops-infra-*` | Infrastructure | `devops-infra-terraform`, `devops-infra-kubernetes` |
-| `devops-monitoring-*` | Observability | `devops-monitoring-prometheus`, `devops-monitoring-datadog` |
-| `devops-security-*` | Security ops | `devops-security-scanning`, `devops-security-secrets` |
+Skills for managing the extension system itself:
 
-### `testing-*` — Testing Standards
-
-Testing methodologies and frameworks.
-
-| Subdomain | Description | Examples |
-|-----------|-------------|----------|
-| `testing-unit-*` | Unit testing | `testing-unit-go`, `testing-unit-jest` |
-| `testing-integration-*` | Integration tests | `testing-integration-api`, `testing-integration-db` |
-| `testing-e2e-*` | End-to-end | `testing-e2e-playwright`, `testing-e2e-cypress` |
-| `testing-performance-*` | Performance | `testing-performance-load`, `testing-performance-benchmark` |
-
-### `workflow-*` — Development Workflows
-
-Process and workflow automation.
-
-| Subdomain | Description | Examples |
-|-----------|-------------|----------|
-| `workflow-git-*` | Git workflows | `workflow-git-conventional`, `workflow-git-trunk` |
-| `workflow-review-*` | Code review | `workflow-review-pr`, `workflow-review-security` |
-| `workflow-release-*` | Release process | `workflow-release-semver`, `workflow-release-changelog` |
-
-### `meta-*` — Claude Extensions
-
-Extensions about building Claude extensions.
-
-| Subdomain | Description | Examples |
-|-----------|-------------|----------|
-| `meta-skills-*` | Writing skills | `meta-skills-create`, `meta-skills-update` |
-| `meta-agents-*` | Writing agents | `meta-agents-create`, `meta-agents-patterns` |
-| `meta-mcp-*` | MCP servers | `meta-mcp-create`, `meta-mcp-patterns` |
+| Prefix | Purpose | Examples |
+|--------|---------|----------|
+| `meta-skill-` | Skill management | `meta-skill-create`, `meta-skill-update` |
+| `meta-agent-` | Agent configuration | `meta-agent-compose`, `meta-agent-test` |
+| `meta-rule-` | Rule management | `meta-rule-create` |
 
 ---
 
@@ -127,81 +99,88 @@ Extensions about building Claude extensions.
 ### Skills
 
 ```
-skills/<domain>-<subdomain>-<specific>/
-├── SKILL.md           # name: <domain>-<subdomain>-<specific>
-├── rules/
-├── reference/
-├── scaffolds/
-└── tests/
+skills/{prefix}-{name}/
+├── SKILL.md           # name: {prefix}-{name}
+├── rules/             # Skill-specific rules
+├── reference/         # Reference materials
+├── scaffolds/         # Code templates
+└── tests/             # Skill tests
 ```
 
-**Example:** `skills/coding-go-cloud/SKILL.md`
+**Example:** `skills/language-go-cloud/SKILL.md`
 ```yaml
 ---
-name: coding-go-cloud
+name: language-go-cloud
 description: Go programming standards for cloud services
 ---
 ```
 
 ### Agents
 
+Pre-composed configurations that combine multiple skills:
+
 ```
-agents/<domain>-<subdomain>-<capability>.md
+agents/{role}-{specialization}.md
 ```
 
-**Example:** `agents/coding-go-reviewer.md`
+**Example:** `agents/developer-go-backend.md`
 ```yaml
 ---
-name: coding-go-reviewer
-description: Reviews Go code for cloud service patterns
-tools: Read, Glob, Grep
+name: developer-go-backend
+description: Go backend developer agent
+skills:
+  - language-go-cloud
+  - framework-gin
+  - platform-kubernetes
+  - practice-security-auth
+  - role-developer-backend
 ---
 ```
 
 ### Rules
 
-Rules can use nested directories for organization:
+Rules can use nested directories (hierarchy in folders, not names):
 
 ```
 rules/
+├── security/
+│   ├── input-validation.md
+│   └── secrets.md
 ├── coding/
 │   ├── go/
-│   │   ├── error-handling.md
-│   │   └── concurrency.md
+│   │   └── error-handling.md
 │   └── typescript/
-│       └── no-any.md
-└── security/
-    └── secrets.md
+│       └── strict-types.md
+└── workflow/
+    └── commit-messages.md
 ```
-
-Rule files should use descriptive names without domain prefix (folder provides context).
 
 ### Commands
 
 ```
-commands/<domain>-<action>.md
+commands/{action}-{target}.md
 ```
 
-**Example:** `commands/coding-lint.md`, `commands/docs-generate.md`
+**Example:** `commands/generate-api-docs.md`, `commands/review-security.md`
 
 ---
 
 ## Migration Map
 
-Current → New naming:
+Previous → New naming:
 
-| Current | New |
-|---------|-----|
-| `bubbletea-tui` | `design-tui-bubbletea` |
-| `k9s-tui-style` | `design-tui-k9s` |
-| `coding-standard-go-cloud` | `coding-go-cloud` |
-| `coding-standard-typescript` | `coding-typescript-node` |
-| `coding-standard-react` | `coding-react-components` |
-| `coding-standard-bash` | `coding-bash-scripts` |
-| `coding-standard-c-zephyr` | `coding-c-zephyr` |
-| `devops-standard` | `devops-workflow-standard` |
-| `writing-claude-extensions` | `meta-skills-create` |
-| `updating-claude-extension` | `meta-skills-update` |
+| Previous | New | Layer |
+|----------|-----|-------|
+| `coding-go-cloud` | `language-go-cloud` | Foundation |
+| `coding-typescript-node` | `language-typescript-node` | Foundation |
+| `coding-react-components` | `framework-react` | Foundation |
+| `coding-bash-scripts` | `language-bash` | Foundation |
+| `coding-c-zephyr` | `language-c-zephyr` | Foundation |
+| `design-tui-bubbletea` | `framework-bubbletea` | Foundation |
+| `design-tui-k9s` | `framework-k9s-style` | Foundation |
+| `devops-workflow-standard` | `tool-git-workflow` | Foundation |
+| `meta-skills-create` | `meta-skill-create` | Meta |
+| `meta-skills-update` | `meta-skill-update` | Meta |
 
 ---
 
@@ -210,9 +189,35 @@ Current → New naming:
 Before adding a new extension:
 
 - [ ] Uses lowercase with hyphens
-- [ ] Follows `domain-subdomain-specific` pattern
-- [ ] Domain exists in taxonomy (or needs addition)
-- [ ] Name is descriptive without abbreviations
-- [ ] Max 3 segments
+- [ ] Has correct layer prefix (`language-`, `framework-`, `platform-`, `tool-`, `practice-`, `domain-`, `role-`, `meta-`)
+- [ ] Descriptive without abbreviations
 - [ ] No collision with existing names
 - [ ] Folder/file matches `name` field in frontmatter
+- [ ] Added to GUIDE.md if new category
+
+---
+
+## Quick Reference
+
+**Foundation prefixes (shared knowledge):**
+- `language-{lang}-{context}` - Programming languages
+- `framework-{name}` - Frameworks and libraries
+- `platform-{name}` - Platforms and infrastructure
+- `tool-{name}` - Development tools
+- `practice-{area}-{specific}` - Cross-cutting practices
+- `domain-{industry}` - Business domains
+
+**Role prefixes (behavioral):**
+- `role-manager-{area}` - Orchestration and planning
+- `role-architect-{area}` - System design
+- `role-developer-{area}` - Implementation
+- `role-reviewer-{area}` - Code review
+- `role-tester-{area}` - Testing
+- `role-devops-{area}` - CI/CD and deployment
+- `role-sre-{area}` - Operations
+- `role-writer-{area}` - Documentation
+- `role-pm-{area}` - Product management
+- `role-designer-{area}` - UI/UX design
+
+**Meta prefix:**
+- `meta-{type}-{action}` - Extension management

@@ -1,5 +1,5 @@
 ---
-name: coding-c-zephyr
+name: language-c-zephyr
 description: C programming standards for Zephyr RTOS embedded systems
 ---
 

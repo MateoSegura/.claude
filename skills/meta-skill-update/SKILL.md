@@ -1,5 +1,5 @@
 ---
-name: meta-skills-update
+name: meta-skill-update
 description: Update existing Claude Code extensions with web search and interactive guidance
 ---
 

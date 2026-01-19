@@ -10,7 +10,7 @@ import (
 	"github.com/MateoSegura/.claude/skilltest"
 )
 
-// TestBubbleTeaTUI tests the design-tui-bubbletea skill.
+// TestBubbleTeaTUI tests the framework-bubbletea skill.
 func TestBubbleTeaTUI(t *testing.T) {
 	if os.Getenv("SKILL_TEST") == "" {
 		t.Skip("Set SKILL_TEST=1 to run skill tests (requires Claude CLI)")
@@ -20,12 +20,12 @@ func TestBubbleTeaTUI(t *testing.T) {
 	runner.Verbose = testing.Verbose()
 
 	suite := &skilltest.Suite{
-		Name:  "design-tui-bubbletea",
-		Skill: "design-tui-bubbletea",
+		Name:  "framework-bubbletea",
+		Skill: "framework-bubbletea",
 		Cases: []*skilltest.TestCase{
 			{
 				Name:   "basic-model-creation",
-				Skill:  "design-tui-bubbletea",
+				Skill:  "framework-bubbletea",
 				Prompt: "Create a simple Bubble Tea model for a counter that can increment and decrement. Just show me the Go code.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -41,7 +41,7 @@ func TestBubbleTeaTUI(t *testing.T) {
 			},
 			{
 				Name:   "spinner-component",
-				Skill:  "design-tui-bubbletea",
+				Skill:  "framework-bubbletea",
 				Prompt: "Create a Bubble Tea app that shows a spinner while loading data. Use the bubbles spinner component.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -55,7 +55,7 @@ func TestBubbleTeaTUI(t *testing.T) {
 			},
 			{
 				Name:   "keyboard-handling",
-				Skill:  "design-tui-bubbletea",
+				Skill:  "framework-bubbletea",
 				Prompt: "Create a Bubble Tea model that handles keyboard input: q to quit, enter to confirm, escape to cancel.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -68,7 +68,7 @@ func TestBubbleTeaTUI(t *testing.T) {
 			},
 			{
 				Name:   "lipgloss-styling",
-				Skill:  "design-tui-bubbletea",
+				Skill:  "framework-bubbletea",
 				Prompt: "Create a styled Bubble Tea component using lipgloss with a border, padding, and colors.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -81,7 +81,7 @@ func TestBubbleTeaTUI(t *testing.T) {
 			},
 			{
 				Name:   "command-pattern",
-				Skill:  "design-tui-bubbletea",
+				Skill:  "framework-bubbletea",
 				Prompt: "Create a Bubble Tea model that fetches data asynchronously using tea.Cmd.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
@@ -94,7 +94,7 @@ func TestBubbleTeaTUI(t *testing.T) {
 			},
 			{
 				Name:   "list-component",
-				Skill:  "design-tui-bubbletea",
+				Skill:  "framework-bubbletea",
 				Prompt: "Create a Bubble Tea app with a selectable list using the bubbles list component. Show items and handle selection.",
 				Validators: []skilltest.Validator{
 					skilltest.ContainsCode("go"),
