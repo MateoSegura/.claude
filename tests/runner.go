@@ -39,16 +39,22 @@ type TestRunner struct {
 }
 
 // NewTestRunner creates a runner with default settings.
-// Automatically enables DryRun mode if ANTHROPIC_API_KEY is not set.
+// Automatically enables DryRun mode if Claude CLI is not available.
 func NewTestRunner() *TestRunner {
-	dryRun := os.Getenv("ANTHROPIC_API_KEY") == ""
-	if dryRun {
-		fmt.Println("⚠️  ANTHROPIC_API_KEY not set - running in DRY RUN mode (structure validation only)")
-		fmt.Println("   To run full tests: export ANTHROPIC_API_KEY=your-key")
+	// Check if claude CLI is available
+	claudeBinary := "claude"
+	dryRun := false
+
+	cmd := exec.Command(claudeBinary, "--version")
+	if err := cmd.Run(); err != nil {
+		dryRun = true
+		fmt.Println("⚠️  Claude CLI not available - running in DRY RUN mode (structure validation only)")
+		fmt.Println("   To run full tests: install Claude Code CLI")
 		fmt.Println()
 	}
+
 	return &TestRunner{
-		ClaudeBinary: "claude",
+		ClaudeBinary: claudeBinary,
 		WorkDir:      ".",
 		OutputDir:    "/tmp/extension-tests",
 		Timeout:      5 * time.Minute,
@@ -605,6 +611,54 @@ func CustomValidator(name string, fn func(output string) (bool, string)) Validat
 			Passed:  passed,
 			Score:   boolToScore(passed),
 			Message: msg,
+		}
+	}
+}
+
+// ============================================================================
+// LLM-as-Judge Validator
+// ============================================================================
+
+// LLMValidator uses Claude to evaluate if output meets criteria.
+// This enables nuanced validation that regex/string matching can't handle.
+func LLMValidator(name, criteria string) Validator {
+	return func(output string, _ *TestResult) Validation {
+		// Build the judge prompt
+		judgePrompt := fmt.Sprintf(`You are evaluating test output. Answer only YES or NO, followed by a brief reason.
+
+CRITERIA: %s
+
+OUTPUT TO EVALUATE:
+%s
+
+Does the output meet the criteria? (YES/NO + reason)`, criteria, truncate(output, 4000))
+
+		// Call Claude to judge
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		cmd := exec.CommandContext(ctx, "claude", "--print", judgePrompt)
+		var stdout bytes.Buffer
+		cmd.Stdout = &stdout
+
+		err := cmd.Run()
+		if err != nil {
+			return Validation{
+				Name:    name,
+				Passed:  false,
+				Score:   0.0,
+				Message: fmt.Sprintf("LLM judge error: %v", err),
+			}
+		}
+
+		response := strings.TrimSpace(stdout.String())
+		passed := strings.HasPrefix(strings.ToUpper(response), "YES")
+
+		return Validation{
+			Name:    name,
+			Passed:  passed,
+			Score:   boolToScore(passed),
+			Message: truncate(response, 200),
 		}
 	}
 }

@@ -19,7 +19,7 @@ git submodule add https://github.com/MateoSegura/.claude.git .claude
 ├── agents/               # Specialized subagents
 ├── hooks/                # Tool event triggers
 ├── mcp-servers/          # External service integrations
-├── skilltest/            # Go testing framework
+├── tests/                # Go testing framework
 ├── settings.json         # Global settings
 └── go.mod                # Go module
 ```
@@ -217,19 +217,157 @@ You are a specialized agent for...
 
 ---
 
-## Running Tests
+---
+
+## Testing Framework
+
+The `tests/` package provides a Go framework for testing Claude Code extensions by invoking the Claude CLI and validating outputs.
+
+### Extension Test Strategies
+
+| Extension Type | What to Test | Validation Approach |
+|----------------|--------------|---------------------|
+| **Skill** | Does Claude follow the skill's guidance? | LLM-as-judge or pattern matching |
+| **Rule** | Does output comply with the rule? | LLM-as-judge for nuanced rules |
+| **Command** | Does it produce correct structure? | Pattern matching, file checks |
+| **Agent** | Can it complete specialized tasks? | LLM-as-judge on output quality |
+| **Hook** | Does command run with expected effects? | File system / side effect checks |
+| **MCP** | Do tools return valid data? | Response validation |
+
+### Quick Start
 
 ```bash
-# Run all skill tests
-SKILL_TEST=1 go test ./...
+# Run the test suite
+go run ./tests/cmd/runtest
 
-# Run specific skill tests
-SKILL_TEST=1 go test ./skills/meta-skill-create/tests/...
+# Run Go test files (requires SKILL_TEST=1)
+SKILL_TEST=1 go test ./skills/meta-skill-create/...
 ```
 
-Tests require:
-- Claude CLI installed
-- `ANTHROPIC_API_KEY` set
+Requirements:
+- Claude CLI installed and authenticated
+- Go 1.23+
+
+### Writing Tests
+
+Tests live alongside extensions as `skill_test.go`:
+
+```
+skills/my-skill/
+├── SKILL.md
+└── skill_test.go    # Tests for this skill
+```
+
+**Example test file:**
+
+```go
+package my_skill_test
+
+import (
+    "context"
+    "testing"
+    "time"
+    "github.com/MateoSegura/.claude/tests"
+)
+
+func TestMySkill(t *testing.T) {
+    runner := tests.NewTestRunner()
+
+    suite := &tests.Suite{
+        Name:          "my-skill",
+        ExtensionType: tests.ExtensionSkill,
+        Extension:     "my-skill",
+        Cases: []*tests.TestCase{
+            {
+                Name:      "recommends-correct-approach",
+                Extension: "my-skill",
+                Prompt:    "How should I handle X?",
+                Validators: []tests.Validator{
+                    tests.LLMValidator(
+                        "correct-recommendation",
+                        "Response recommends Y approach with proper justification",
+                    ),
+                },
+            },
+        },
+    }
+
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+    defer cancel()
+
+    result, _ := runner.RunSuite(ctx, suite)
+    if result.Score < 0.70 {
+        t.Errorf("Score %.0f%% below 70%% threshold", result.Score*100)
+    }
+}
+```
+
+### Validators
+
+| Validator | Use Case | Example |
+|-----------|----------|---------|
+| `LLMValidator(name, criteria)` | Nuanced judgment | `LLMValidator("identifies-hook", "Response recommends using a hook")` |
+| `ContainsText(text)` | Exact text match | `ContainsText("PostToolUse")` |
+| `MatchesRegex(pattern)` | Pattern match | `MatchesRegex(`eslint\|ESLint`)` |
+| `ContainsCode(lang)` | Code block exists | `ContainsCode("json")` |
+| `NoErrors()` | No error indicators | `NoErrors()` |
+| `CustomValidator(name, fn)` | Custom logic | See below |
+
+**Custom validator example:**
+
+```go
+tests.CustomValidator("has-steps", func(output string) (bool, string) {
+    hasSteps := strings.Contains(output, "1.") && strings.Contains(output, "2.")
+    if hasSteps {
+        return true, "Found numbered steps"
+    }
+    return false, "Missing numbered steps"
+})
+```
+
+### LLM-as-Judge
+
+The `LLMValidator` invokes Claude to evaluate outputs:
+
+```go
+tests.LLMValidator(
+    "identifies-mcp",
+    "The response recommends using an MCP server for database access",
+)
+```
+
+This is powerful for validating:
+- Semantic correctness (not just keywords)
+- Quality of explanations
+- Appropriate recommendations
+- Following nuanced guidelines
+
+### Grading Scale
+
+| Grade | Score | Meaning |
+|-------|-------|---------|
+| A | 90%+ | Excellent - consistently works |
+| B | 80-89% | Good - mostly works |
+| C | 70-79% | Acceptable - works with gaps |
+| D | 60-69% | Poor - significant issues |
+| F | <60% | Failing - needs major work |
+
+### Test Output
+
+Results are saved as JSON to `/tmp/extension-tests/`:
+
+```json
+{
+  "name": "meta-skill-create-basic",
+  "extension_type": "skill",
+  "extension": "meta-skill-create",
+  "total_tests": 3,
+  "passed": 3,
+  "failed": 0,
+  "score": 1,
+  "results": [...]
+}
+```
 
 ---
 
