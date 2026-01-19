@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git -C /home/mateo/intelligence log --oneline -10)",
+      "Bash(git -C /home/mateo/intelligence show --name-status --pretty=\"\" 77313a0)",
+      "WebFetch(domain:docs.zephyrproject.org)",
+      "Bash(git -C /home/mateo/intelligence status --short)",
+      "WebFetch(domain:wiki.sei.cmu.edu)",
+      "WebFetch(domain:barrgroup.com)",
+      "Bash(go version:*)",
+      "Bash(golangci-lint:*)",
+      "Bash(go install:*)",
+      "Bash(/home/mateo/go/bin/golangci-lint run:*)",
+      "Bash(/home/mateo/go/bin/golangci-lint linters:*)",
+      "Bash(/home/mateo/go/bin/gosec:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(go test:*)",
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Skill(coding-standard-go-cloud)",
+      "Bash(ls:*)",
+      "Bash(docker --version:*)",
+      "Bash(docker buildx:*)"
+    ]
+  }
+}

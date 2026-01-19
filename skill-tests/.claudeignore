@@ -1,0 +1,3 @@
+# Skill tests are hidden from Claude to save context
+# Tests are run separately via `go test` with SKILL_TEST=1
+*
