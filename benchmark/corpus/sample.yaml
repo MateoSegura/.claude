@@ -1,0 +1,229 @@
+# Sample Benchmark Corpus
+# These are synthetic examples demonstrating the corpus format.
+# In production, you'd curate real GitHub issues with known solutions.
+
+name: sample-corpus
+description: Sample corpus demonstrating benchmark framework capabilities
+version: "0.1.0"
+
+issues:
+  # ==========================================================================
+  # EASY: Simple bug fixes that require minimal context
+  # ==========================================================================
+
+  - id: "easy-go-nil-check-001"
+    title: "Fix nil pointer dereference in user handler"
+    description: |
+      The GetUser handler panics when the user is not found in the database.
+      It should return a 404 error instead of dereferencing a nil pointer.
+    difficulty: easy
+    task_type: bug_fix
+    language: go
+
+    # For demo purposes, we use a minimal example repo
+    # In practice, you'd use real repos with real issues
+    repo_url: "https://github.com/golang/example"
+    repo_ref: "master"
+
+    prompt: |
+      Fix the nil pointer dereference bug in this Go code. The function should
+      return an error when the user is not found instead of panicking.
+
+      Here's the buggy code:
+
+      ```go
+      func GetUser(id string) (*User, error) {
+          user := db.FindUser(id)
+          return &User{Name: user.Name}, nil  // PANIC if user is nil
+      }
+      ```
+
+      Write the fixed version of this function.
+
+    eval_method: llm_judge
+    success_criteria: |
+      The solution must:
+      1. Check if user is nil before accessing user.Name
+      2. Return an appropriate error when user is not found
+      3. Not change the function signature
+
+    tags: ["nil-check", "error-handling", "beginner"]
+
+  # ==========================================================================
+  # MEDIUM: Requires understanding of existing codebase
+  # ==========================================================================
+
+  - id: "medium-go-context-001"
+    title: "Add context cancellation to HTTP client"
+    description: |
+      The HTTP client doesn't respect context cancellation, causing requests
+      to hang even when the parent context is cancelled.
+    difficulty: medium
+    task_type: bug_fix
+    language: go
+
+    repo_url: "https://github.com/golang/example"
+    repo_ref: "master"
+
+    prompt: |
+      The following HTTP client code doesn't properly handle context cancellation.
+      When the context is cancelled, the request should be aborted immediately.
+
+      Current code:
+      ```go
+      func FetchData(ctx context.Context, url string) ([]byte, error) {
+          resp, err := http.Get(url)
+          if err != nil {
+              return nil, err
+          }
+          defer resp.Body.Close()
+          return io.ReadAll(resp.Body)
+      }
+      ```
+
+      Fix this function to properly respect context cancellation.
+
+    eval_method: llm_judge
+    success_criteria: |
+      The solution must:
+      1. Create an http.Request with the context attached
+      2. Use http.Client.Do() instead of http.Get()
+      3. The request should be cancelled if the context is cancelled
+
+    tags: ["context", "http", "cancellation"]
+
+  - id: "medium-go-race-001"
+    title: "Fix data race in concurrent map access"
+    description: |
+      The cache implementation has a data race when multiple goroutines
+      access the map concurrently.
+    difficulty: medium
+    task_type: bug_fix
+    language: go
+
+    repo_url: "https://github.com/golang/example"
+    repo_ref: "master"
+
+    prompt: |
+      Fix the data race in this cache implementation. Multiple goroutines
+      may call Get and Set concurrently.
+
+      ```go
+      type Cache struct {
+          data map[string]string
+      }
+
+      func NewCache() *Cache {
+          return &Cache{data: make(map[string]string)}
+      }
+
+      func (c *Cache) Get(key string) (string, bool) {
+          v, ok := c.data[key]
+          return v, ok
+      }
+
+      func (c *Cache) Set(key, value string) {
+          c.data[key] = value
+      }
+      ```
+
+      The solution should use proper synchronization.
+
+    eval_method: llm_judge
+    success_criteria: |
+      The solution must:
+      1. Add a sync.RWMutex to protect map access
+      2. Use RLock for Get (read operations)
+      3. Use Lock for Set (write operations)
+      4. Properly unlock in all cases
+
+    tags: ["concurrency", "race-condition", "sync"]
+
+  # ==========================================================================
+  # HARD: Requires deep understanding and architectural decisions
+  # ==========================================================================
+
+  - id: "hard-go-graceful-shutdown-001"
+    title: "Implement graceful shutdown for HTTP server"
+    description: |
+      The HTTP server doesn't gracefully shutdown. It should wait for
+      in-flight requests to complete before exiting, with a timeout.
+    difficulty: hard
+    task_type: feature
+    language: go
+
+    repo_url: "https://github.com/golang/example"
+    repo_ref: "master"
+
+    prompt: |
+      Implement graceful shutdown for an HTTP server. Requirements:
+
+      1. Listen for SIGINT and SIGTERM signals
+      2. When signal received, stop accepting new connections
+      3. Wait for existing requests to complete (max 30 seconds)
+      4. Force shutdown after timeout
+      5. Log the shutdown process
+
+      Current code:
+      ```go
+      func main() {
+          srv := &http.Server{Addr: ":8080", Handler: router}
+          log.Fatal(srv.ListenAndServe())
+      }
+      ```
+
+      Rewrite this to support graceful shutdown.
+
+    eval_method: llm_judge
+    success_criteria: |
+      The solution must:
+      1. Use signal.NotifyContext or signal.Notify for signal handling
+      2. Call srv.Shutdown() with a context that has a timeout
+      3. Handle the error case where shutdown times out
+      4. Use a goroutine to run the server so main can block on signals
+      5. Log appropriate messages during shutdown
+
+    tags: ["graceful-shutdown", "signals", "production"]
+
+  # ==========================================================================
+  # EASY: TypeScript example
+  # ==========================================================================
+
+  - id: "easy-ts-type-guard-001"
+    title: "Fix type narrowing in union type handler"
+    description: |
+      The function doesn't properly narrow the union type, causing TypeScript
+      errors when accessing properties.
+    difficulty: easy
+    task_type: bug_fix
+    language: typescript
+
+    repo_url: "https://github.com/microsoft/TypeScript"
+    repo_ref: "main"
+
+    prompt: |
+      Fix the TypeScript type narrowing issue in this code:
+
+      ```typescript
+      type Result = { success: true; data: string } | { success: false; error: string };
+
+      function handleResult(result: Result) {
+          if (result.success) {
+              console.log(result.data);  // Should work
+          } else {
+              console.log(result.error); // Should work
+          }
+      }
+      ```
+
+      The current code gives type errors. Fix it so TypeScript properly
+      narrows the type in each branch.
+
+    eval_method: llm_judge
+    success_criteria: |
+      The solution must:
+      1. Use proper discriminated union pattern
+      2. TypeScript should correctly narrow types in if/else branches
+      3. No type assertions (as) should be needed
+
+    tags: ["typescript", "type-narrowing", "discriminated-union"]
