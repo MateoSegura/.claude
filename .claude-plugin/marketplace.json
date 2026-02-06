@@ -1,0 +1,66 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "mateo-marketplace",
+  "description": "Curated Claude Code plugins for embedded development, documentation generation, and developer productivity",
+  "owner": {
+    "name": "Mateo Segura",
+    "email": "mateo@segura.dev"
+  },
+  "plugins": [
+    {
+      "name": "coding-standard-c-zephyr",
+      "description": "Complete C/Zephyr RTOS coding standard with 50+ rules covering naming, types, memory, concurrency, error handling, security, and more. Includes clang-format, clang-tidy, and cppcheck configurations.",
+      "version": "2.0.0",
+      "author": {
+        "name": "Mateo Segura"
+      },
+      "source": "./plugins/coding-standard-c-zephyr",
+      "category": "development",
+      "keywords": ["c", "zephyr", "rtos", "embedded", "misra", "coding-standard"]
+    },
+    {
+      "name": "docs-diagrams-code",
+      "description": "Generate accurate, reproducible Mermaid diagrams from Go source code. Supports architecture, sequence, dependency, and type relationship diagrams.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mateo Segura"
+      },
+      "source": "./plugins/docs-diagrams-code",
+      "category": "documentation",
+      "keywords": ["mermaid", "diagrams", "go", "architecture", "documentation"]
+    },
+    {
+      "name": "docs-presentations-business",
+      "description": "Generate branded Slidev presentations from business strategy documents. Three-phase pipeline: scan existing markdown, propose a deck plan, then render with parallel agents. Includes 14 slide templates and a full design system.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mateo Segura"
+      },
+      "source": "./plugins/docs-presentations-business",
+      "category": "documentation",
+      "keywords": ["slidev", "presentations", "business", "strategy", "slides"]
+    },
+    {
+      "name": "docs-presentations-code",
+      "description": "Generate purpose-driven Slidev presentations for libraries and tools. Three-phase pipeline: discover the codebase with parallel agents, propose a deck plan, then generate branded presentations.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mateo Segura"
+      },
+      "source": "./plugins/docs-presentations-code",
+      "category": "documentation",
+      "keywords": ["slidev", "presentations", "code", "documentation", "developer"]
+    },
+    {
+      "name": "extension-toolkit",
+      "description": "Toolkit for creating and managing Claude Code extensions. Includes commands for creating skills, rules, commands, agents, and hooks, plus meta-skills for extension lifecycle management.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mateo Segura"
+      },
+      "source": "./plugins/extension-toolkit",
+      "category": "productivity",
+      "keywords": ["meta", "extensions", "skills", "commands", "hooks", "agents"]
+    }
+  ]
+}

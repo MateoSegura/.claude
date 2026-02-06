@@ -1,0 +1,9 @@
+{
+  "name": "extension-toolkit",
+  "description": "Create and manage Claude Code extensions: skills, rules, commands, agents, and hooks",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mateo Segura"
+  },
+  "license": "MIT"
+}

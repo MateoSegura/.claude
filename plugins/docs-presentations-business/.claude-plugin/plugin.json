@@ -1,0 +1,9 @@
+{
+  "name": "docs-presentations-business",
+  "description": "Generate branded Slidev presentations from business strategy documents",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mateo Segura"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "coding-standard-c-zephyr",
+  "description": "Complete C/Zephyr RTOS coding standard with 50+ rules, tooling configs, and review checklists",
+  "version": "2.0.0",
+  "author": {
+    "name": "Mateo Segura"
+  },
+  "license": "MIT"
+}

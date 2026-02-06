@@ -1,0 +1,9 @@
+{
+  "name": "docs-presentations-code",
+  "description": "Generate purpose-driven Slidev presentations for libraries and tools",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mateo Segura"
+  },
+  "license": "MIT"
+}
