@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "mtib": {
-      "command": "python3",
-      "args": ["-m", "mtib_mcp_server"],
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/MateoSegura/mtib-mcp-server", "mtib-mcp"],
       "env": {
         "MTIB_HOST": "localhost",
         "MTIB_PORT": "50054"
