@@ -61,6 +61,17 @@
       "source": "./plugins/extension-toolkit",
       "category": "productivity",
       "keywords": ["meta", "extensions", "skills", "commands", "hooks", "agents"]
+    },
+    {
+      "name": "system-create",
+      "description": "The skill factory. Creates production-grade Claude Code extensions through guided architecture, web research, implementation, and adversarial review. Produces skills, agents, hooks, MCP configs, and commands that meet a verified quality bar.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mateo Segura"
+      },
+      "source": "./plugins/system-create",
+      "category": "productivity",
+      "keywords": ["meta", "factory", "skills", "agents", "hooks", "quality", "prompt-engineering"]
     }
   ]
 }

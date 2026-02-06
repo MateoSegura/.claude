@@ -1,0 +1,9 @@
+{
+  "name": "system-create",
+  "description": "The skill factory. Creates production-grade Claude Code extensions (skills, agents, hooks, MCP configs, commands) through guided design, research, implementation, and adversarial review.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mateo Segura"
+  },
+  "license": "MIT"
+}
