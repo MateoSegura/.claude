@@ -1,0 +1,11 @@
+[
+  {
+    "event": "PostToolUse",
+    "matcher": {
+      "tool": "Edit",
+      "filePattern": "**/*.{c,h}"
+    },
+    "command": "if [ -f west.yml ] || [ -d .west ]; then west build 2>&1 | tail -20; else echo 'Not a Zephyr project, skipping build'; fi",
+    "description": "Auto-run west build after editing C/H files in a Zephyr project"
+  }
+]

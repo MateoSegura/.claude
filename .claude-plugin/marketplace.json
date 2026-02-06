@@ -72,6 +72,17 @@
       "source": "./plugins/system-create",
       "category": "productivity",
       "keywords": ["meta", "factory", "skills", "agents", "hooks", "quality", "prompt-engineering"]
+    },
+    {
+      "name": "zephyr-bugfix",
+      "description": "End-to-end bug-fix workflow for Zephyr RTOS firmware on Nordic nRF52/nRF53 hardware. Uses MTIB test bench for flashing, debugging, UART/RTT logs, and power measurement. Phases: receive bug, reproduce on hardware, diagnose fault, fix, verify with tests and power, ship to Bitbucket.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mateo Segura"
+      },
+      "source": "./plugins/zephyr-bugfix",
+      "category": "embedded",
+      "keywords": ["zephyr", "rtos", "nrf", "nordic", "embedded", "debugging", "bugfix", "mtib", "power"]
     }
   ]
 }

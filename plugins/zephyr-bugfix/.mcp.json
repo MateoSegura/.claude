@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mtib": {
+      "command": "python3",
+      "args": ["-m", "mtib_mcp_server"],
+      "env": {
+        "MTIB_HOST": "localhost",
+        "MTIB_PORT": "50054"
+      }
+    }
+  }
+}

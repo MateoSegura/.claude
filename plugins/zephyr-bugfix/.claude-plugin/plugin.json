@@ -1,0 +1,9 @@
+{
+  "name": "zephyr-bugfix",
+  "description": "End-to-end bug-fix workflow for Zephyr RTOS firmware on Nordic nRF chips. Receives bug from Asana, reproduces on hardware via MTIB, diagnoses with fault analysis, fixes, verifies with Twister tests and power measurement, ships to Bitbucket.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mateo Segura"
+  },
+  "license": "MIT"
+}
